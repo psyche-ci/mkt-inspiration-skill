@@ -1043,7 +1043,7 @@
           title:"HEINZ Love Lid：把包装功能变成可送出的情感刻度",
           source:"LBB",
           sourceMark:"LBB",
-          image:"./today-covers/lbb-heinz-love-lid.png",
+          image:"./today-covers/lbb-heinz-love-lid.jpg",
           url:"https://lbbonline.com/news/HEINZ-Customisable-Ketchup-Love-Lid",
           folders:{occasion:["christmas","april-fools"],content:["painpoint"],format:["product"],visual:["minimal"]},
           insight:"成熟产品在节日里不一定要换一个故事，包装动作本身也可以成为表达。HEINZ把不同出酱量命名为Like、Love、Crazy Love，让用户通过旋转瓶盖选择“爱的程度”，既解决真实使用偏好，也让普通餐桌动作带上礼物感和幽默感。",
@@ -1287,7 +1287,7 @@
         if(!url && pastedUrl && raw.replace(pastedUrl[0],"").trim()===""){url=pastedUrl[0].replace(/[),。；;]+$/g,"");raw="";}
         var imageMode = document.getElementById("creativeImageMode").value;
         var normalizedUrl = (url || "").replace(/[?#].*$/,"" ).replace(/\/$/,"");
-        var knownCoverByUrl = {"https://www.digitaling.com/projects/373197.html":"./today-covers/custom-digitaling-373197.gif"};
+        var knownCoverByUrl = {"https://www.digitaling.com/projects/373197.html":"./today-covers/custom-digitaling-373197.jpg"};
         if(/\/projects\/hot$/i.test(normalizedUrl) || /socialbeta\.com\/hot(?:\/case)?$/i.test(normalizedUrl)){ showToast("这是热门列表页，不是具体创意详情页；请打开某一条项目详情页网址后再生成"); return; }
         if(imageMode === "url" && normalizedUrl && knownCoverByUrl[normalizedUrl]) image = knownCoverByUrl[normalizedUrl];
         if(!raw && url){
@@ -1310,7 +1310,7 @@
             var known = {
               "https://www.digitaling.com/projects/373197.html":{
                 title:"淘宝开了家串串香，欢迎大家来串门儿",
-                cover:"./today-covers/custom-digitaling-373197.gif",
+                cover:"./today-covers/custom-digitaling-373197.jpg",
                 text:"淘宝把串门儿从一句社交用语变成线下串串香体验，邀请用户到店互动，把平台关系感、食物场景和品牌体验连接起来。"
               }
             }[normalizedUrl] || null;
@@ -1363,7 +1363,7 @@
         };
         if(document.getElementById("creativeImageMode").value === "upload"){
           if(!imageFile && url){
-            var knownCover = {"https://www.digitaling.com/projects/373197.html":"./today-covers/custom-digitaling-373197.gif"}[url];
+            var knownCover = {"https://www.digitaling.com/projects/373197.html":"./today-covers/custom-digitaling-373197.jpg"}[url];
             if(knownCover) finish(knownCover); else showToast("正在从内容网址查找封面…");
             if(knownCover)return;
             return;
