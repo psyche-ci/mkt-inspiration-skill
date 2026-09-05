@@ -93,12 +93,8 @@
       pointer-events:auto;
     }
     .folder-card:focus-visible{outline:3px solid #111;outline-offset:3px;border-radius:12px}
-    .folder{
-      display:none;
-    }
-    .folder-name{
-      display:none;
-    }
+    .folder{display:none}
+    .folder-name{display:none}
     .folder-card:nth-child(1){left:10.5%;top:34.5%;width:17.5%;height:21%}
     .folder-card:nth-child(2){left:31.2%;top:35.8%;width:18.1%;height:22%}
     .folder-card:nth-child(3){left:54.2%;top:33.5%;width:14.7%;height:26%}
@@ -1013,7 +1009,11 @@
         ]
       };
 
-      var notes = [
+      /* Personal inspiration cards are intentionally not bundled with the Skill.
+         They are loaded only from this browser's local storage after the user
+         saves or imports them. */
+      var notes = [];
+      /*
         {
           id:"cadbury-mcobeauty",
           title:"Cadbury × MCoBeauty：把双向感官联名迁移成圣诞礼物灵感",
@@ -1098,7 +1098,7 @@
           content:"项目给普通产品保留正常售价，同时加入一次快乐时刻的极低成本：一次摇尾、一次睡前故事、一次在沙发上跳跃。每个例子都先出现熟悉生活动作，再用超长小数告诉消费者，购买的不只是家具，而是未来很多次共同生活。",
           form:"零售价格视觉是核心媒介：产品图、正常售价、生活动作和超长小数并排。可落地到户外、门店价签和社交图文，也能用“先看到大数字—拉近发现小数点—回到家庭时刻”的视频节奏解释。"
         }
-      ];
+      */
 
       var state = loadState();
       notes = notes.concat(state.customNotes || []);
