@@ -1329,8 +1329,9 @@
           var aiConfig = JSON.parse(localStorage.getItem("mkt-ai-config") || sessionStorage.getItem("mkt-ai-config") || "null");
           if(aiConfig && aiConfig.apiKey){
             aiConfig.endpoint = aiConfig.endpoint || "/api/ai-read";
-            var providerBases = {openai:"https://api.openai.com/v1",deepseek:"https://api.deepseek.com/v1",zhipu:"https://open.bigmodel.cn/api/paas/v4",qwen:"https://dashscope.aliyuncs.com/compatible-mode/v1",moonshot:"https://api.moonshot.cn/v1",yi:"https://api.lingyiwanwu.com/v1"};
-            aiConfig.baseUrl = aiConfig.baseUrl || providerBases[aiConfig.provider] || "https://api.openai.com/v1";
+            var providerBases = {deepseek:"https://api.deepseek.com/v1"};
+            aiConfig.provider = "deepseek";
+            aiConfig.baseUrl = providerBases.deepseek;
             aiRequested = true;
             showToast("正在调用 AI 解读创意…");
             var aiResponse = await fetch(aiConfig.endpoint,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({apiKey:aiConfig.apiKey,provider:aiConfig.provider,baseUrl:aiConfig.baseUrl,model:aiConfig.model,content:"标题："+title+"\n正文："+raw})});
