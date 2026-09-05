@@ -8,12 +8,7 @@ const root = path.dirname(fileURLToPath(import.meta.url));
 const publicDir = path.join(root, "public");
 const port = Number(process.env.MKT_PORT || 8788);
 const providerBases = {
-  openai: "https://api.openai.com/v1",
   deepseek: "https://api.deepseek.com/v1",
-  zhipu: "https://open.bigmodel.cn/api/paas/v4",
-  qwen: "https://dashscope.aliyuncs.com/compatible-mode/v1",
-  moonshot: "https://api.moonshot.cn/v1",
-  yi: "https://api.lingyiwanwu.com/v1",
 };
 
 const json = (res, body, status = 200) => {
@@ -92,9 +87,9 @@ async function api(pathname, input) {
   }
   if (pathname !== "/api/ai-read") throw new Error("Not found");
   const apiKey = String(input.apiKey || "").trim();
-  const provider = String(input.provider || "openai");
-  const baseUrl = String(input.baseUrl || providerBases[provider] || providerBases.openai).replace(/\/$/, "");
-  const model = String(input.model || "gpt-4o-mini");
+  const provider = "deepseek";
+  const baseUrl = String(input.baseUrl || providerBases.deepseek).replace(/\/$/, "");
+  const model = String(input.model || "deepseek-v4-flash");
   const sourceUrl = String(input.sourceUrl || "").trim();
   const supplied = String(input.content || "").trim();
   const isTest = input.test === true;
