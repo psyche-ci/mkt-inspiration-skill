@@ -41,10 +41,34 @@
     .card.is-reading{transform:rotateY(180deg)}
     .card.is-reading .card-front{opacity:0;pointer-events:none}.card.is-reading .card-back{opacity:1;pointer-events:auto}
     .reading-label{margin:0;font-size:9px;color:#666}.reading-title{margin:0;font-size:19px;line-height:1.05;letter-spacing:-.045em}
-    .reading-grid{display:grid;gap:9px}.reading-item{padding-bottom:9px;border-bottom:1px solid #ddd}.reading-item:last-child{border-bottom:0}.reading-item strong{display:block;margin-bottom:3px;font-size:10px}.reading-item p{margin:0;font-family:"PingFang SC","Microsoft YaHei",sans-serif;font-size:10px;line-height:1.45;color:#3d3d3d}.reading-item.news-reading{padding:13px;border:1px solid #111}.reading-item.news-reading strong{font-size:12px;margin-bottom:8px}.reading-item.news-reading p{font-size:11px;line-height:1.7}
+    .reading-grid{display:grid;gap:9px}.reading-item{padding-bottom:9px;border-bottom:1px solid #ddd}.reading-item:last-child{border-bottom:0}.reading-item strong{display:block;margin-bottom:3px;font-size:10px}.reading-item p{margin:0;font-family:"PingFang SC","Microsoft YaHei",sans-serif;font-size:10px;line-height:1.45;color:#3d3d3d}.reading-item p[data-ai-field="insight"],.reading-item p[data-ai-field="content"]{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;overflow:hidden;max-height:4.35em}.reading-item p[data-ai-field="form"]{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:1;overflow:hidden;max-height:1.45em}.reading-item.news-reading{padding:13px;border:1px solid #111}.reading-item.news-reading strong{font-size:12px;margin-bottom:8px}.reading-item.news-reading p{font-size:11px;line-height:1.7}
     .note-input{width:100%;min-height:56px;margin-top:auto;padding:8px;border:1px solid #aaa;font:10px/1.4 "PingFang SC","Microsoft YaHei",sans-serif;resize:none}.back-actions{display:flex;gap:6px}.back-actions .action{font-family:"PingFang SC","Microsoft YaHei",sans-serif}.pagination{display:flex;justify-content:center;align-items:center;gap:8px;padding:18px 0 4px}.page-button{border:1px solid #111;background:#fff;border-radius:999px;padding:6px 10px;font:10px Karrik,"PingFang SC",sans-serif}.page-button[disabled]{opacity:.35}.page-status{font-size:10px;color:#555;min-width:86px;text-align:center}.empty-state{grid-column:1/-1;padding:45px 20px;text-align:center;color:#666;font-size:12px}
+    .folder-picker-backdrop{position:fixed;inset:0;z-index:1000;display:grid;place-items:center;padding:20px;background:rgba(0,0,0,.38)}
+    .folder-picker{width:min(420px,calc(100vw - 40px));padding:24px;background:#fff;border:1px solid #111;border-radius:18px;box-shadow:0 18px 60px rgba(0,0,0,.22)}
+    .folder-picker h3{margin:0 0 18px;font:700 18px/1.2 Karrik,"PingFang SC",sans-serif}
+    .folder-options{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+    .folder-option,.folder-picker-cancel{border:1px solid #111;border-radius:999px;background:#fff;color:#111;padding:10px 14px;font:600 14px/1 "HelveticaLocal","PingFang SC",sans-serif;cursor:pointer}
+    .folder-option:hover,.folder-option:focus-visible{background:#111;color:#fff}
+    .folder-picker-cancel{display:block;margin:18px 0 0 auto;padding:8px 16px;font-size:12px}
     @media(max-width:760px){.page{width:calc(100% - 28px);padding-top:18px}.hero-title{font-size:48px;gap:14px}.switch{justify-content:flex-start;gap:18px}.grid{grid-template-columns:1fr 1fr}.card{min-height:340px;padding:13px}.card h2{font-size:15px}.summary{font-size:10px}.filter-label{width:100%}}
   </style>
+  <script>
+    function chooseInspirationFolder(){
+      return new Promise(resolve=>{
+        const folders=['内容向','形式向','节点向','视觉向'];
+        const backdrop=document.createElement('div');
+        backdrop.className='folder-picker-backdrop';
+        const options=folders.map(folder=>'<button type="button" class="folder-option" data-folder="'+folder+'">'+folder+'</button>').join('');
+        backdrop.innerHTML='<div class="folder-picker" role="dialog" aria-modal="true" aria-labelledby="folderPickerTitle"><h3 id="folderPickerTitle">收藏到哪个文件夹？</h3><div class="folder-options">'+options+'</div><button type="button" class="folder-picker-cancel" data-cancel>取消</button></div>';
+        const close=value=>{backdrop.remove();resolve(value)};
+        backdrop.querySelectorAll('[data-folder]').forEach(button=>button.addEventListener('click',()=>close(button.dataset.folder)));
+        backdrop.querySelector('[data-cancel]').addEventListener('click',()=>close(null));
+        backdrop.addEventListener('click',event=>{if(event.target===backdrop)close(null)});
+        document.body.appendChild(backdrop);
+      });
+    }
+    window.chooseInspirationFolder=chooseInspirationFolder;
+  </script>
 </head>
 <body>
   <main class="page">
@@ -55,7 +79,7 @@
     <section class="grid" id="grid" aria-label="营销灵感列表" hidden></section>
     <nav class="pagination" aria-label="内容分页" hidden><button class="page-button" id="prevPage" type="button">上一页</button><span class="page-status" id="pageStatus"></span><button class="page-button" id="nextPage" type="button">下一页</button></nav>
   </main>
-  <dialog id="apiKeyDialog"><form method="dialog" style="min-width:320px;padding:22px;border:1px solid #111"><h3 style="margin:0 0 14px">设置 API KEY</h3><p style="font-size:12px;color:#666;line-height:1.5">当前仅支持已核对的 DeepSeek OpenAI 兼容接口。Key 只保存在本机浏览器。</p><select id="apiProviderInput" style="width:100%;padding:10px;border:1px solid #aaa"><option value="deepseek">DeepSeek</option></select><input id="apiKeyInput" type="password" placeholder="粘贴你的 API Key" autocomplete="off" style="width:100%;padding:10px;border:1px solid #aaa;margin-top:8px"><input id="apiModelInput" type="text" value="deepseek-v4-flash" placeholder="模型名" style="width:100%;padding:10px;border:1px solid #aaa;margin-top:8px"><input id="apiBaseUrlInput" type="url" value="https://api.deepseek.com" aria-label="DeepSeek 接口地址" style="width:100%;padding:10px;border:1px solid #aaa;margin-top:8px"><div style="display:flex;justify-content:flex-end;gap:8px;margin-top:14px"><button class="action" value="cancel">取消</button><button class="action" id="saveApiKeyButton" value="default">保存</button></div></form></dialog>
+  <dialog id="apiKeyDialog"><form method="dialog" style="min-width:320px;padding:22px;border:1px solid #111"><h3 style="margin:0 0 14px">设置 API KEY</h3><p style="font-size:12px;color:#666;line-height:1.5">支持 OpenAI、DeepSeek、智谱、通义千问、月之暗面、零一万物及兼容 OpenAI 接口的供应商。Key 只保存在本机浏览器。</p><select id="apiProviderInput" style="width:100%;padding:10px;border:1px solid #aaa"><option value="openai">OpenAI</option><option value="deepseek">DeepSeek</option><option value="zhipu">智谱 GLM</option><option value="qwen">通义千问</option><option value="moonshot">月之暗面 Kimi</option><option value="yi">零一万物 Yi</option><option value="custom">自定义兼容接口</option></select><input id="apiKeyInput" type="password" placeholder="粘贴你的 API Key" autocomplete="off" style="width:100%;padding:10px;border:1px solid #aaa;margin-top:8px"><input id="apiModelInput" type="text" value="gpt-4o-mini" placeholder="模型名" style="width:100%;padding:10px;border:1px solid #aaa;margin-top:8px"><input id="apiBaseUrlInput" type="url" placeholder="自定义接口地址（仅自定义时填写）" style="width:100%;padding:10px;border:1px solid #aaa;margin-top:8px;display:none"><div style="display:flex;justify-content:flex-end;gap:8px;margin-top:14px"><button class="action" value="cancel">取消</button><button class="action" id="saveApiKeyButton" value="default">保存</button></div></form></dialog>
   <script type="application/json" id="legacy-card-script">
     document.querySelectorAll('.card:not([data-verified])').forEach((card) => card.remove());
     const readings = [
@@ -79,9 +103,9 @@
       front.querySelector('.read-toggle').addEventListener('click', () => card.classList.add('is-reading'));
       back.querySelector('.return-card').addEventListener('click', () => card.classList.remove('is-reading'));
       const saveButton = front.querySelector('.save-toggle');
-      saveButton.addEventListener('click', () => {
+      saveButton.addEventListener('click', async () => {
         const folders = ['内容向', '形式向', '节点向', '视觉向'];
-        const selected = window.prompt(`收藏到哪个文件夹？\\n${folders.join(' / ')}`, '内容向');
+        const selected = await window.chooseInspirationFolder();
         if (!folders.includes(selected)) return;
         localStorage.setItem(`mkt-inspiration-save-${card.dataset.itemId}`, selected);
         saveButton.textContent = `已收藏 · ${selected}`;
@@ -177,9 +201,10 @@
   <script src="./mkt-inspiration-hotspots-2026-08-11.js"></script>
   <script src="./mkt-ai-news-data-2026-08-11.js"></script>
   <script src="./mkt-current-news-2026-08-13.js"></script>
-  <script src="./mkt-current-ads-2026-08-14.js?v=20260818-2"></script>
-  <script src="./mkt-current-ads-2026-08-17.js?v=20260818-2"></script>
-  <script src="./mkt-inspiration-app-2026-08-11.js?v=20260818-2"></script>
+  <script src="./mkt-current-ads-2026-08-14.js?v=20260819-4"></script>
+  <script src="./mkt-current-ads-2026-08-17.js?v=20260819-4"></script>
+  <script src="./mkt-current-ads-2026-08-19.js?v=20260819-1"></script>
+  <script src="./mkt-inspiration-app-2026-08-11.js?v=20260819-7"></script>
   <script>
   (()=>{
     const categories=['热点趋势','AI新闻日报','营销案例'];
@@ -194,16 +219,16 @@
   (()=>{
     const dialog=document.getElementById('apiKeyDialog'),form=dialog?.querySelector('form'),save=document.getElementById('saveApiKeyButton'),key=document.getElementById('apiKeyInput'),provider=document.getElementById('apiProviderInput'),model=document.getElementById('apiModelInput'),base=document.getElementById('apiBaseUrlInput'),button=document.querySelector('.api-key');
     if(!dialog||!form||!save||!key||!provider||!model||!base||!button)return;
-    const presets={deepseek:['https://api.deepseek.com','deepseek-v4-flash']};
+    const presets={openai:['https://api.openai.com/v1','gpt-4o-mini'],deepseek:['https://api.deepseek.com/v1','deepseek-chat'],zhipu:['https://open.bigmodel.cn/api/paas/v4','glm-4-flash'],qwen:['https://dashscope.aliyuncs.com/compatible-mode/v1','qwen-plus'],moonshot:['https://api.moonshot.cn/v1','moonshot-v1-8k'],yi:['https://api.lingyiwanwu.com/v1','yi-lightning'],custom:['','']};
     const read=()=>{try{return JSON.parse(localStorage.getItem('mkt-ai-config')||'null')}catch(_){return null}};
     const render=()=>{const configured=Boolean(read()?.apiKey);button.textContent=configured?'API Key 已设置':'设置 API KEY';button.setAttribute('aria-label',button.textContent)};
     const sync=()=>{const preset=presets[provider.value]||presets.custom;const custom=provider.value==='custom';base.style.display=custom?'block':'none';if(!custom){base.value=preset[0];model.value=preset[1]}};
     provider.addEventListener('change',sync);
-    button.addEventListener('click',()=>{const cfg=read();provider.value='deepseek';model.value=cfg?.model||presets.deepseek[1];base.value=cfg?.baseUrl||presets.deepseek[0];key.value='';sync();dialog.showModal()});
-    form.addEventListener('submit',event=>{event.preventDefault();const old=read();const apiKey=key.value.trim()||old?.apiKey||'';const preset=presets.deepseek;const baseUrl=preset[0];if(!apiKey){alert('请填写有效的 DeepSeek API Key');return}localStorage.setItem('mkt-ai-config',JSON.stringify({provider:'deepseek',apiKey,model:model.value.trim()||preset[1],baseUrl}));render();dialog.close()});
+    button.addEventListener('click',()=>{const cfg=read();provider.value=cfg?.provider||'openai';model.value=cfg?.model||presets[provider.value][1];base.value=cfg?.baseUrl||presets[provider.value][0];key.value='';sync();dialog.showModal()});
+    form.addEventListener('submit',event=>{event.preventDefault();const old=read();const apiKey=key.value.trim()||old?.apiKey||'';const preset=presets[provider.value]||presets.custom;const baseUrl=provider.value==='custom'?base.value.trim():preset[0];if(!apiKey||!baseUrl){alert('请填写有效的 API Key 和接口地址');return}localStorage.setItem('mkt-ai-config',JSON.stringify({provider:provider.value,apiKey,model:model.value.trim()||preset[1],baseUrl}));render();dialog.close()});
     document.addEventListener('click',async event=>{
       const trigger=event.target.closest('.read-toggle');if(!trigger)return;
-      const card=trigger.closest('.card');const cfg=read();const data=window.MKT_INSPIRATION_DATA?.items||[];const item=data.find(entry=>entry.id===card?.dataset.itemId);if(!card||!item)return;
+      const card=trigger.closest('.card');const cfg=read();const data=window.MKT_INSPIRATION_DATA?.items||[];const item=data.find(entry=>entry.id===card?.dataset.itemId)||({id:card?.dataset.itemId,contentType:'营销案例',title:card?.querySelector('.card-front h2')?.textContent||'',source:card?.querySelector('.card-top span')?.textContent?.replace(/^来源：/,'')||'',originalUrl:card?.dataset.sourceUrl||'',summary:card?.querySelector('.card-front .summary')?.textContent||'',evidenceText:card?.querySelector('.card-front .evidence')?.textContent||''});const sourceUrl=item.originalUrl||item.url||card?.dataset.sourceUrl||'';if(!card||!item||!sourceUrl)return;
       card.classList.add('is-reading');
       const fields=[...card.querySelectorAll('[data-ai-field]')];
       const fail=message=>{fields.forEach((node,index)=>node.textContent=index===0?`读取失败：${message}`:'未生成。');trigger.disabled=false;trigger.textContent='重新读取'};
@@ -211,11 +236,11 @@
       if(location.protocol==='file:'){fail('当前以本地文件方式打开，无法访问 AI 接口。请使用项目启动后的 http(s) 网页地址。');return}
       fields.forEach((node,index)=>node.textContent=index===0?'正在读取原文并调用 AI 模型…':'生成中…');trigger.disabled=true;trigger.textContent='AI读取中';
       try{
-        const response=await fetch('/api/ai-read',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({provider:cfg.provider,apiKey:cfg.apiKey,baseUrl:cfg.baseUrl,model:cfg.model,sourceUrl:item.originalUrl,content:[`标题：${item.title}`,`摘要：${item.summary}`,`来源：${item.source}`,`公开依据：${item.evidenceText||''}`].join('\n')})});
+        const response=await fetch('/api/ai-read',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({provider:cfg.provider,apiKey:cfg.apiKey,baseUrl:cfg.baseUrl,model:cfg.model,sourceUrl,content:[`标题：${item.title}`,`摘要：${item.summary}`,`来源：${item.source}`,`公开依据：${item.evidenceText||''}`].join('\n')})});
         const payload=await response.json();if(!response.ok||!payload.ok)throw new Error(payload.error||`HTTP ${response.status}`);
         const result=payload.result||{};const values=item.contentType==='营销案例'?[result.insight,result.content,result.form]:[result.content||result.insight];
         if(values.some(value=>!String(value||'').trim()))throw new Error('模型返回字段不完整');
-        if(item.contentType==='营销案例'&&(String(result.insight).length<80||String(result.content).length<80||/^(品牌内容|营销活动)$/.test(String(result.form).trim())))throw new Error('模型返回过短或创意形式不具体，请重新读取');
+        if(item.contentType==='营销案例'&&(String(result.insight).length<30||String(result.content).length<30||String(result.form).length<2||/品牌内容|营销活动/.test(String(result.form))))throw new Error('模型返回不完整或创意形式不具体，请重新读取');
         fields.forEach((node,index)=>node.textContent=values[index]||'原文未说明');trigger.textContent='AI已解读';
       }catch(error){fail(error instanceof Error?error.message:String(error))}
     });
