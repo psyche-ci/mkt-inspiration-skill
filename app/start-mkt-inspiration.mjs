@@ -5,7 +5,19 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const root = path.dirname(fileURLToPath(import.meta.url));
-const publicDir = path.join(root, "public");
+// The skill package keeps the web app under app/public, while the standalone
+// workspace keeps it under public. Resolve both layouts so the launcher works
+// after installation as well as during local development.
+const publicDir = await (async () => {
+  const candidates = [path.join(root, "public"), path.join(root, "app", "public")];
+  for (const candidate of candidates) {
+    try {
+      await readFile(path.join(candidate, "mkt-inspiration-grid-preview.html"));
+      return candidate;
+    } catch { /* try the next layout */ }
+  }
+  return candidates[0];
+})();
 const port = Number(process.env.MKT_PORT || 8788);
 const providerBases = {
   deepseek: "https://api.deepseek.com/v1",
