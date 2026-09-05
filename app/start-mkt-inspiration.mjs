@@ -5,9 +5,6 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const root = path.dirname(fileURLToPath(import.meta.url));
-// The skill package keeps the web app under app/public, while the standalone
-// workspace keeps it under public. Resolve both layouts so the launcher works
-// after installation as well as during local development.
 const publicDir = await (async () => {
   const candidates = [path.join(root, "public"), path.join(root, "app", "public")];
   for (const candidate of candidates) {
@@ -80,6 +77,17 @@ const cleanText = (html) => html
   .replace(/&nbsp;/gi, " ").replace(/&amp;/gi, "&")
   .replace(/\s+/g, " ").trim();
 
+const normalizeAiResult = (value) => {
+  let candidate = value;
+  if (typeof candidate === "string") {
+    const stripped = candidate.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "").trim();
+    try { candidate = JSON.parse(stripped); } catch { candidate = {}; }
+  }
+  if (candidate && typeof candidate.result === "object") candidate = candidate.result;
+  const pick = (...keys) => keys.map((key) => candidate?.[key]).find((item) => typeof item === "string" && item.trim()) || "";
+  return { insight: pick("insight", "创意洞察", "洞察"), content: pick("content", "创意内容", "内容"), form: pick("form", "创意形式", "形式") };
+};
+
 async function api(pathname, input) {
   if (pathname === "/api/find-cover") {
     const url = String(input.url || "").trim();
@@ -126,8 +134,9 @@ async function api(pathname, input) {
   if (!upstream.ok) throw new Error(payload?.error?.message || `upstream HTTP ${upstream.status}`);
   if (isTest) return { ok: true, model };
   const text = payload?.choices?.[0]?.message?.content || "{}";
-  const clean = String(text).replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "").trim();
-  return { ok: true, result: JSON.parse(clean), model };
+  const result = normalizeAiResult(text);
+  if (!result.insight || !result.content || !result.form) throw new Error("模型返回字段不完整（需要 insight、content、form）");
+  return { ok: true, result, model };
 }
 
 const mime = { ".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=utf-8", ".css": "text/css; charset=utf-8", ".json": "application/json; charset=utf-8", ".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".gif": "image/gif", ".svg": "image/svg+xml", ".woff2": "font/woff2", ".woff": "font/woff", ".ttf": "font/ttf" };
