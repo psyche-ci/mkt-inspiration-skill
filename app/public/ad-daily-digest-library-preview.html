@@ -1,0 +1,1539 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>营销灵感包</title>
+  <style>
+    @font-face{
+      font-family:"Karrik";
+      src:url("./preview-assets/fonts/Karrik-Regular.woff2") format("woff2");
+      font-weight:400 900;
+      font-style:normal;
+      font-display:swap;
+    }
+    @font-face{font-family:"HelveticaLocal";src:url("./preview-assets/fonts/Helvetica.ttf") format("truetype");font-weight:100 900;font-style:normal;font-display:swap}
+    :root{
+      --ink:#111;
+      --paper:#f7f6f1;
+      --line:#1b1b1b;
+      --muted:#6b6b67;
+    }
+    *{box-sizing:border-box}
+    [hidden]{display:none!important}
+    #creativeDialog .dialog-actions{display:flex;justify-content:flex-end;gap:12px;padding-top:8px}
+    #creativeDialog .dialog-actions .pill{min-height:36px;padding:0 16px;border:1px solid #111;border-radius:999px;background:#fff;color:#111;font-family:"HelveticaLocal","Helvetica Neue",sans-serif;font-size:14px;line-height:1}
+    #creativeDialog .dialog-actions .pill.active{background:#111;color:#fff;border-color:#111}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;
+      min-height:100vh;
+      color:var(--ink);
+      background:var(--paper);
+      font-family:"HelveticaLocal","Helvetica Neue","PingFang SC","Microsoft YaHei",sans-serif;
+    }
+    button,input{font:inherit}
+    button{color:inherit}
+
+    /* 文件夹首页 */
+    .library-home{
+      width:100%;
+      height:100vh;
+      min-height:0;
+      position:relative;
+      overflow:hidden;
+      display:grid;
+      place-items:center;
+      background:#f4f3f1;
+    }
+    .library-home:before{
+      content:none;
+    }
+    .home-canvas{
+      position:relative;
+      width:100vw;
+      height:100vh;
+      overflow:hidden;
+      background:#f4f3f1 url("./preview-assets/images/library-home-hd-clean.png") center -20px/100% calc(100% + 68px) no-repeat;
+    }
+    .home-back{
+      position:absolute;
+      top:22.5%;
+      left:2.8%;
+      width:auto;
+      height:auto;
+      z-index:4;
+      display:inline-flex;
+      align-items:center;
+      min-height:52px;
+      padding:0 24px;
+      border:1.5px solid #111;
+      border-radius:999px;
+      background:rgba(255,255,255,.88);
+      color:#111;
+      font-size:18px;
+      text-decoration:none;
+    }
+    .home-center{
+      position:absolute;
+      inset:0;
+      z-index:2;
+      pointer-events:none;
+    }
+    .folders{
+      position:absolute;
+      inset:0;
+    }
+    .folder-card{
+      position:absolute;
+      border:0;
+      padding:0;
+      background:transparent;
+      cursor:pointer;
+      pointer-events:auto;
+    }
+    .folder-card:focus-visible{outline:3px solid #111;outline-offset:3px;border-radius:12px}
+    .folder{
+      display:none;
+    }
+    .folder-name{
+      display:none;
+    }
+    .folder-card:nth-child(1){left:10.5%;top:34.5%;width:17.5%;height:21%}
+    .folder-card:nth-child(2){left:31.2%;top:35.8%;width:18.1%;height:22%}
+    .folder-card:nth-child(3){left:54.2%;top:33.5%;width:14.7%;height:26%}
+    .folder-card:nth-child(4){left:72.7%;top:32.7%;width:16.4%;height:25%}
+
+    /* 文件夹详情 */
+    .folder-detail{
+      min-height:100vh;
+      background:#f7f6f1;
+      padding:26px 26px 60px 88px;
+    }
+    .folder-detail[hidden],.library-home[hidden]{display:none}
+    .tag-rail{
+      position:fixed;
+      z-index:30;
+      left:0;
+      top:0;
+      width:62px;
+      height:100vh;
+      border-right:1px solid var(--line);
+      background:#f7f6f1;
+      display:flex;
+      flex-direction:column;
+      align-items:stretch;
+    }
+    .tag-list{
+      display:flex;
+      flex-direction:column;
+      min-height:0;
+      flex:1;
+    }
+    .tag-tab{
+      position:relative;
+      min-height:106px;
+      padding:10px 0;
+      border:0;
+      border-bottom:1px solid var(--line);
+      background:var(--tag-color,#e8e5db);
+      cursor:pointer;
+      display:grid;
+      place-items:center;
+      overflow:hidden;
+    }
+    .tag-tab span{
+      writing-mode:vertical-rl;
+      transform:rotate(180deg);
+      font-size:14px;
+      font-weight:800;
+      letter-spacing:.12em;
+    }
+    .tag-tab:after{
+      content:"";
+      position:absolute;
+      right:0;
+      top:0;
+      bottom:0;
+      width:0;
+      background:var(--ink);
+      transition:width .15s ease;
+    }
+    .tag-tab.active:after{width:6px}
+    .tag-tab:hover{filter:brightness(.97)}
+    .rail-actions{
+      display:grid;
+      border-top:1px solid var(--line);
+    }
+    .rail-action{
+      height:52px;
+      border:0;
+      border-bottom:1px solid var(--line);
+      background:#fff;
+      font-size:23px;
+      cursor:pointer;
+    }
+    .rail-action.small{font-size:13px;font-weight:800}
+
+    .magazine{
+      width:min(1320px,100%);
+      margin:0 auto;
+      border:1px solid var(--line);
+      background:#fbfaf6;
+    }
+    .detail-header{
+      min-height:178px;
+      padding:18px 26px 20px;
+      border-bottom:3px double var(--line);
+      position:relative;
+      display:grid;
+      grid-template-columns:1fr auto;
+      gap:22px;
+      align-items:start;
+      background:
+        repeating-linear-gradient(135deg,rgba(0,0,0,.025) 0 1px,transparent 1px 5px),
+        #fbfaf6;
+    }
+    .creative-upload-pill{position:absolute;right:28px;left:auto;bottom:18px;top:auto;z-index:2;display:inline-flex;align-items:center;justify-content:center;min-height:36px;padding:0 15px;border:1px solid #111;border-radius:999px;background:#fff;color:#111}
+      .header-kicker{
+      margin:0 0 2px;
+      font-family:Georgia,serif;
+      font-size:28px;
+      font-weight:700;
+    }
+    .current-tag{
+      margin:0;
+      max-width:900px;
+      font-family:Georgia,"Songti SC",serif;
+      font-size:clamp(48px,7vw,88px);
+      line-height:.88;
+      letter-spacing:-.07em;
+      word-break:break-word;
+    }
+    .header-meta{
+      display:flex;
+      justify-content:space-between;
+      gap:30px;
+      margin-top:14px;
+      padding-top:10px;
+      border-top:1px dotted var(--line);
+      font-size:12px;
+      letter-spacing:.08em;
+      color:#3f3f3d;
+    }
+    .header-actions{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      padding-top:2px;
+    }
+    /* 文件夹名是主标题，当前标签作为次级标题，避免“情绪叙事”压过“内容向”。 */
+    .detail-header .header-kicker,.detail-header .current-tag{font-family:"Karrik","PingFang SC","Microsoft YaHei",sans-serif;font-weight:700}
+    .detail-header .header-kicker{font-size:30px;line-height:1;letter-spacing:-.04em;margin-bottom:14px}
+    .detail-header .current-tag{font-size:38px;line-height:.98;letter-spacing:-.05em;margin-top:0}
+    @media(max-width:760px){.detail-header .header-kicker{font-size:26px;margin-bottom:10px}.detail-header .current-tag{font-size:32px}}
+    .pill{
+      min-height:36px;
+      padding:0 15px;
+      border:1px solid var(--line);
+      border-radius:999px;
+      background:#fff;
+      cursor:pointer;
+      font-weight:700;
+    }
+    .pill.active{background:var(--ink);color:#fff}
+    .pill:hover{background:#efeee9}
+    .pill.active:hover{background:var(--ink)}
+
+    .notes-toolbar{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:18px;
+      padding:14px 24px;
+      border-bottom:1px solid var(--line);
+      font-size:13px;
+    }
+    .notes-toolbar strong{font-size:15px}
+    .notes-toolbar .hint{color:var(--muted)}
+    .note-stream{padding:0 24px}
+    .note-card{
+      position:relative;
+      display:grid;
+      grid-template-columns:64px minmax(210px,290px) minmax(0,1fr);
+      gap:22px;
+      padding:28px 0 30px;
+      border-bottom:1px solid var(--line);
+      scroll-margin-top:20px;
+    }
+    .note-card:last-child{border-bottom:0}
+    .source-column{
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:12px;
+    }
+    .source-logo{
+      width:50px;
+      height:50px;
+      border-radius:50%;
+      background:#111;
+      color:#fff;
+      display:grid;
+      place-items:center;
+      text-align:center;
+      font-size:10px;
+      font-weight:900;
+      line-height:1.05;
+      letter-spacing:-.02em;
+    }
+    .order-no{
+      font-family:Georgia,serif;
+      font-size:28px;
+      line-height:1;
+      font-variant-numeric:tabular-nums;
+    }
+    .note-cover{
+      width:100%;
+      aspect-ratio:4/3;
+      object-fit:cover;
+      display:block;
+      border:1px solid rgba(0,0,0,.18);
+      background:#e6e4dd;
+    }
+    .note-main{min-width:0}
+    .note-head{
+      display:flex;
+      justify-content:space-between;
+      gap:18px;
+      align-items:flex-start;
+      margin-bottom:13px;
+    }
+    .note-title{
+      margin:0;
+      font-family:Georgia,"Songti SC",serif;
+      font-size:26px;
+      line-height:1.08;
+    }
+    .note-source{
+      margin-top:7px;
+      color:var(--muted);
+      font-size:12px;
+    }
+    .link-note{
+      flex:0 0 auto;
+      border:1px solid var(--line);
+      border-radius:999px;
+      padding:8px 12px;
+      background:transparent;
+      cursor:pointer;
+      white-space:nowrap;
+    }
+    .link-note:hover{background:#111;color:#fff}
+    .ai-sections{
+      display:grid;
+      gap:0;
+    }
+    .ai-row{
+      display:grid;
+      grid-template-columns:88px 1fr;
+      gap:13px;
+      padding:10px 0;
+      border-top:1px dotted #aaa;
+    }
+    .ai-row:first-child{border-top:0;padding-top:0}
+    .ai-label{font-weight:900;font-size:14px}
+    .ai-copy{
+      margin:0;
+      color:#2f2f2d;
+      font-size:14px;
+      line-height:1.65;
+    }
+    .related{
+      display:flex;
+      flex-wrap:wrap;
+      gap:7px;
+      margin-top:12px;
+    }
+    .related:empty{display:none}
+    .related-chip{
+      border:1px solid #aaa;
+      border-radius:999px;
+      padding:6px 10px;
+      background:#fff;
+      cursor:pointer;
+      font-size:12px;
+    }
+    .related-chip:before{content:"↗ ";font-weight:900}
+    .personal-notes{margin-top:15px}
+    .personal-note-list{
+      display:grid;
+      gap:7px;
+      margin-bottom:9px;
+    }
+    .personal-note{
+      position:relative;
+      padding:9px 34px 9px 12px;
+      border-left:3px solid var(--accent,#111);
+      background:#efeee8;
+      font-size:13px;
+      line-height:1.5;
+    }
+    .delete-note{
+      position:absolute;
+      right:8px;
+      top:7px;
+      border:0;
+      background:transparent;
+      cursor:pointer;
+      font-size:17px;
+      color:#777;
+    }
+    .note-composer{
+      display:grid;
+      grid-template-columns:1fr 38px;
+      gap:7px;
+      max-width:620px;
+    }
+    .note-input{
+      width:100%;
+      height:38px;
+      border:1px solid var(--line);
+      border-radius:999px;
+      padding:0 16px;
+      background:#fff;
+      outline:0;
+    }
+    .note-input:focus{box-shadow:0 0 0 3px color-mix(in srgb,var(--accent,#111) 25%,transparent)}
+    .add-personal-note{
+      width:38px;
+      height:38px;
+      border:1px solid var(--line);
+      border-radius:50%;
+      background:var(--ink);
+      color:#fff;
+      font-size:23px;
+      line-height:1;
+      cursor:pointer;
+    }
+    .empty-state{
+      min-height:430px;
+      display:grid;
+      place-items:center;
+      text-align:center;
+      padding:40px;
+      color:var(--muted);
+    }
+    .empty-state strong{display:block;color:var(--ink);font-size:24px;margin-bottom:8px}
+
+    .pagination{
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      gap:16px;
+      padding:22px;
+      border-top:1px solid var(--line);
+    }
+    .pagination[hidden]{display:none}
+    .page-btn{
+      border:1px solid var(--line);
+      border-radius:999px;
+      background:#fff;
+      padding:8px 15px;
+      cursor:pointer;
+    }
+    .page-btn:disabled{opacity:.35;cursor:not-allowed}
+
+    dialog{
+      width:min(520px,calc(100vw - 32px));
+      border:1px solid var(--line);
+      padding:0;
+      background:#fbfaf6;
+      box-shadow:0 18px 80px rgba(0,0,0,.22);
+    }
+    dialog::backdrop{background:rgba(0,0,0,.32)}
+    .dialog-head{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      padding:17px 20px;
+      border-bottom:1px solid var(--line);
+    }
+    .dialog-head h3{margin:0;font-size:21px}
+    .dialog-close{
+      border:0;
+      background:transparent;
+      font-size:24px;
+      cursor:pointer;
+    }
+    .dialog-body{padding:20px}
+    .field{display:grid;gap:7px;margin-bottom:16px}
+    .field label{font-size:13px;font-weight:900}
+    .field input[type="text"]{
+      height:42px;
+      border:1px solid var(--line);
+      padding:0 11px;
+      background:#fff;
+    }
+    .field input[type="color"]{
+      width:100%;
+      height:44px;
+      border:1px solid var(--line);
+      padding:4px;
+      background:#fff;
+    }
+    .dialog-actions{
+      display:flex;
+      justify-content:flex-end;
+      gap:8px;
+      margin-top:20px;
+    }
+    .select-list{display:grid;gap:8px;max-height:380px;overflow:auto}
+    .select-note{
+      width:100%;
+      display:grid;
+      grid-template-columns:56px 1fr;
+      gap:12px;
+      align-items:center;
+      padding:8px;
+      border:1px solid #aaa;
+      background:#fff;
+      text-align:left;
+      cursor:pointer;
+    }
+    .select-note:hover{border-color:#111;background:#f0efe9}
+    .select-note img{width:56px;height:48px;object-fit:cover}
+    .toast{
+      position:fixed;
+      z-index:100;
+      right:24px;
+      bottom:24px;
+      padding:11px 16px;
+      border-radius:999px;
+      background:#111;
+      color:#fff;
+      opacity:0;
+      transform:translateY(12px);
+      pointer-events:none;
+      transition:.2s ease;
+    }
+    .toast.show{opacity:1;transform:none}
+
+    @media(max-width:900px){
+      .folder-detail{padding:12px 12px 40px 64px}
+      .detail-header{grid-template-columns:1fr}
+      .header-actions{position:absolute;right:14px;top:14px}
+      .current-tag{padding-top:36px;font-size:58px}
+      .note-card{grid-template-columns:50px 190px minmax(0,1fr);gap:14px}
+      .ai-row{grid-template-columns:1fr;gap:4px}
+    }
+    @media(max-width:680px){
+      .magazine{border-left:0;border-right:0}
+      .folder-detail{padding-left:55px;padding-right:0}
+      .tag-rail{width:52px}
+      .detail-header{padding:16px}
+      .header-meta{display:none}
+      .notes-toolbar{align-items:flex-start}
+      .notes-toolbar .hint{display:none}
+      .note-stream{padding:0 16px}
+      .note-card{grid-template-columns:46px 1fr;gap:12px}
+      .note-cover{grid-column:2}
+      .note-main{grid-column:2}
+      .note-head{display:block}
+      .link-note{margin-top:10px}
+    }
+
+    /* Worth Contents 视觉语言：纯白纸张、细线目录、极窄书签 */
+    body{background:#f3f3f3}
+    .folder-detail{
+      width:min(88vw,1540px);
+      min-height:100vh;
+      margin:0 auto;
+      padding:34px 0 54px;
+      background:#f3f3f3;
+      position:relative;
+      display:grid;
+      grid-template-columns:48px minmax(0,1fr);
+      justify-content:stretch;
+      align-items:start;
+      column-gap:0;
+    }
+    .tag-rail{
+      position:sticky;
+      width:48px;
+      height:auto;
+      bottom:auto;
+      top:0;
+      left:auto;
+      grid-column:1;
+      border-top:0;
+      border-left:0;
+      border-right:0;
+      background:transparent;
+      box-shadow:none;
+    }
+    .tag-rail:after{display:none}
+    .tag-list{
+      position:relative;
+      z-index:1;
+      width:48px;
+      flex:none;
+    }
+    .tag-tab{
+      width:48px;
+      min-height:72px;
+      padding:0;
+      border:0;
+      border-bottom:1px solid #c7c7c7;
+      background:var(--tag-color,#adb1b4);
+      color:#111;
+      box-shadow:none;
+      overflow:visible;
+    }
+    .tag-tab:first-child{border-top:1px solid #c7c7c7}
+    .tag-tab span{
+      writing-mode:horizontal-tb;
+      transform:rotate(-90deg);
+      display:block;
+      width:68px;
+      white-space:nowrap;
+      font-family:"Arial Narrow","PingFang SC",sans-serif;
+      font-size:11px;
+      line-height:1;
+      font-weight:900;
+      letter-spacing:.02em;
+      text-align:center;
+    }
+    .tag-tab:before{display:none}
+    .tag-tab:after{display:none}
+    .tag-tab.active{
+      color:#111;
+      background:var(--tag-color,#adb1b4);
+      box-shadow:inset 0 0 0 2px #111;
+      border-bottom-color:#111;
+    }
+    .tag-tab.active span{font-weight:950}
+    .tag-tab:hover{filter:brightness(.96)}
+    .rail-actions{
+      position:relative;
+      z-index:1;
+      width:48px;
+      border-top:0;
+    }
+    .rail-action{
+      width:48px;
+      height:40px;
+      border:0;
+      border-bottom:1px solid #b9b9b9;
+      background:#fff;
+      font-size:18px;
+    }
+    .rail-action.small{height:46px;font-size:9px}
+    .magazine{
+      grid-column:2;
+      width:100%;
+      min-height:calc(100vh - 88px);
+      background:#fff;
+      border:1px solid #111;
+      border-left:1px solid #111;
+      box-shadow:none;
+      margin:0;
+    }
+    .detail-header{
+      position:relative;
+      min-height:148px;
+      display:block;
+      padding:18px 38px 14px 52px;
+      border-bottom:3px double #111;
+      background:#fff;
+    }
+    .detail-header:before{display:none}
+    .header-kicker{
+      margin:0;
+      font-family:"Arial Narrow","PingFang SC",sans-serif;
+      font-size:13px;
+      font-weight:900;
+      letter-spacing:-.04em;
+    }
+    .current-tag{
+      margin:4px 0 0;
+      max-width:none;
+      font-family:Didot,"Bodoni 72","Songti SC","STSong",serif;
+      font-size:clamp(46px,5.4vw,68px);
+      font-weight:900;
+      line-height:.86;
+      letter-spacing:-.075em;
+    }
+    .header-departments,.header-index,.header-meta{display:none}
+    .header-actions{
+      position:absolute;
+      right:24px;
+      top:17px;
+      bottom:auto;
+      padding:0;
+      gap:14px;
+    }
+    .pill{
+      min-height:auto;
+      padding:2px 0;
+      border:0;
+      border-bottom:1px solid transparent;
+      border-radius:0;
+      background:transparent;
+      font-size:15px;
+      font-weight:700;
+    }
+    #backFolders{
+      min-width:auto;
+      padding:3px 10px;
+      border:1px solid #111;
+      border-radius:999px;
+      font-size:11px;
+      white-space:nowrap;
+    }
+    .pill.active{background:transparent;color:#111;border-bottom-color:#111}
+    .pill:hover,.pill.active:hover{background:transparent;border-bottom-color:#111}
+    .notes-toolbar{display:none}
+    .notes-toolbar strong{font-size:11px}
+    .note-stream{padding:0 34px}
+    .note-card{
+      grid-template-columns:64px clamp(260px,22vw,320px) minmax(480px,600px);
+      column-gap:24px;
+      max-width:1080px;
+      margin:0 auto;
+      padding:30px 24px 32px;
+      justify-content:center;
+      border-bottom:3px double #777;
+    }
+    .source-column{justify-content:center;gap:0}
+    .source-logo{
+      width:54px;
+      height:54px;
+      font-size:10px;
+      letter-spacing:.01em;
+    }
+    .note-cover{
+      aspect-ratio:1/1;
+      border:0;
+      background:#eee;
+    }
+    .note-main{
+      position:relative;
+      width:100%;
+      max-width:100%;
+      min-height:0;
+      padding-top:42px;
+    }
+    .order-no{
+      position:absolute;
+      left:0;
+      top:0;
+      font-family:"Arial Narrow","Helvetica Neue",sans-serif;
+      font-size:34px;
+      font-weight:500;
+      line-height:1;
+      letter-spacing:-.04em;
+    }
+    .note-head{display:block;margin:0 0 14px}
+    .note-title{
+      font-family:"Arial Narrow","PingFang SC",sans-serif;
+      font-size:16px;
+      line-height:1.3;
+      font-weight:800;
+      max-width:620px;
+    }
+    .note-source{margin-top:4px;font-size:8px;color:#555}
+    .ai-sections{gap:1px}
+    .ai-row{
+      grid-template-columns:72px minmax(0,500px);
+      gap:12px;
+      padding:5px 0;
+      border-top:0;
+    }
+    .ai-label{font-size:11px;line-height:1.45}
+    .ai-copy{font-size:11px;line-height:1.52;color:#222}
+    .ai-row .ai-copy{max-width:560px;overflow:visible;white-space:normal;overflow-wrap:anywhere}
+    .personal-notes{margin-top:15px}
+    .personal-note-list{gap:5px;margin-bottom:7px}
+    .personal-note{
+      padding:6px 28px 6px 9px;
+      border-left:2px solid var(--accent,#868d9d);
+      background:#f3f3f3;
+      font-size:10px;
+    }
+    .note-composer{
+      grid-template-columns:1fr 28px;
+      gap:5px;
+      width:470px;
+      max-width:100%;
+    }
+    .note-input{height:34px;padding:0 13px;font-size:12px}
+    .add-personal-note{width:34px;height:34px;font-size:19px}
+    .link-note{
+      margin-top:7px;
+      padding:0;
+      border:0;
+      border-bottom:1px solid #aaa;
+      border-radius:0;
+      background:transparent;
+      font-size:11px;
+    }
+    .note-actions{
+      display:flex;
+      align-items:center;
+      gap:16px;
+      margin-top:7px;
+    }
+    .original-note{
+      color:#111;
+      border-bottom:1px solid #aaa;
+      font-size:11px;
+      line-height:1.4;
+      text-decoration:none;
+    }
+    .original-note:hover{border-bottom-color:#111}
+    .note-actions .link-note{margin-top:0}
+    .link-note:hover{background:transparent;color:#111;border-bottom-color:#111}
+    .related{margin-top:6px;gap:10px}
+    .related-chip{
+      border:0;
+      border-bottom:1px solid #bbb;
+      border-radius:0;
+      padding:1px 0;
+      background:transparent;
+      font-size:9px;
+    }
+    .related-chip:before{content:"↗ ";font-weight:400}
+    dialog{background:#fff}
+    .field input[type="color"]{
+      display:block;
+      width:54px;
+      height:36px;
+      padding:2px;
+      border:1px solid #aaa;
+      border-radius:4px;
+      cursor:pointer;
+    }
+    .custom-color-row{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      margin-top:12px;
+      font-size:12px;
+      font-weight:700;
+    }
+    .color-swatches{display:flex;flex-wrap:wrap;gap:12px}
+    .color-swatch{
+      width:34px;
+      height:34px;
+      border:1px solid transparent;
+      border-radius:50%;
+      background:var(--swatch);
+      cursor:pointer;
+    }
+    .color-swatch.selected{outline:2px solid #111;outline-offset:2px}
+    #deleteTagButton{
+      margin-right:auto;
+      padding:7px 12px;
+      border:1px solid #9d2929;
+      border-radius:999px;
+      color:#9d2929;
+      background:#fff;
+      font-size:12px;
+    }
+    @media(max-width:900px){
+      .folder-detail{padding:14px 12px 40px 48px}
+      .detail-header{padding:26px 26px 18px 44px}
+      .header-actions{right:24px;bottom:14px;top:auto}
+      .note-stream{padding:0 34px 0 46px}
+      .note-card{grid-template-columns:44px 180px minmax(0,1fr);gap:16px}
+      .tag-rail{left:12px}
+    }
+    @media(max-width:680px){
+      .folder-detail{padding-left:40px}
+      .tag-rail{width:32px;left:8px}
+      .tag-tab,.rail-action{width:32px}
+      .detail-header{min-height:230px;padding:24px 18px}
+      .current-tag{font-size:56px;padding-top:0}
+      .header-index{grid-template-columns:1fr;max-width:280px}
+      .note-stream{padding:0 14px}
+      .note-card{grid-template-columns:38px 1fr}
+      .note-cover,.note-main{grid-column:2}
+      .note-main{padding-top:34px}
+    }
+    #backFolders,#addCreativeHeaderButton{box-sizing:border-box!important;width:auto!important;height:auto!important;min-height:36px!important;padding:0 15px!important;border:1px solid #111!important;border-radius:999px!important;background:#fff!important;color:#111!important;text-decoration:none!important;font-family:"HelveticaLocal","Helvetica Neue","PingFang SC","Microsoft YaHei",sans-serif!important;font-size:15px!important;font-weight:700!important;white-space:nowrap!important;line-height:1!important;letter-spacing:0!important;text-align:center!important}
+    .creative-upload-pill{right:24px!important}
+    .tag-tab span{position:absolute;left:50%;top:50%;width:max-content!important;transform:translate(-50%,-50%) rotate(-90deg)!important;text-align:center!important}
+  </style>
+</head>
+<body>
+  <main class="library-home" id="libraryHome">
+    <div class="home-canvas">
+      <a class="home-back" href="./mkt-inspiration-grid-preview.html" aria-label="返回今日快讯">← 返回今日快讯</a>
+      <section class="home-center" aria-label="营销灵感包文件夹">
+        <div class="folders">
+          <button class="folder-card" type="button" data-folder="content" aria-label="打开内容向文件夹">
+            <img class="folder" src="./preview-assets/images/library-folder-content.png" alt="内容向文件夹">
+            <span class="folder-name">内容向</span>
+          </button>
+          <button class="folder-card" type="button" data-folder="format" aria-label="打开形式向文件夹">
+            <img class="folder" src="./preview-assets/images/library-folder-format.png" alt="形式向文件夹">
+            <span class="folder-name">形式向</span>
+          </button>
+          <button class="folder-card" type="button" data-folder="occasion" aria-label="打开节点向文件夹">
+            <img class="folder" src="./preview-assets/images/library-folder-occasion.png" alt="节点向文件夹">
+            <span class="folder-name">节点向</span>
+          </button>
+          <button class="folder-card" type="button" data-folder="visual" aria-label="打开视觉向文件夹">
+            <img class="folder" src="./preview-assets/images/library-folder-visual.png" alt="视觉向文件夹">
+            <span class="folder-name">视觉向</span>
+          </button>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <main class="folder-detail" id="folderDetail" hidden>
+    <aside class="tag-rail" aria-label="自定义标签">
+      <div class="tag-list" id="tagList"></div>
+      <div class="rail-actions">
+        <button class="rail-action" id="addTagButton" type="button" title="添加标签">＋</button>
+        <button class="rail-action small" id="editTagButton" type="button" title="修改当前标签">编辑</button>
+      </div>
+    </aside>
+
+    <section class="magazine">
+      <header class="detail-header">
+        <button class="pill active creative-upload-pill" type="button" id="addCreativeHeaderButton">上传创意</button>
+        <div>
+          <p class="header-kicker" id="folderName">节点向</p>
+          <h1 class="current-tag" id="currentTagTitle">圣诞节</h1>
+        </div>
+        <div class="header-actions" aria-label="页面操作">
+          <button class="pill" type="button" id="backFolders" title="返回上一级" aria-label="返回上一级">← 返回上一级</button>
+        </div>
+      </header>
+
+      <div class="notes-toolbar">
+        <div><strong id="noteCount">0 条收藏笔记</strong> <span class="hint">图片来自原收藏内容，右侧为 AI 帮你读与个人笔记</span></div>
+        <button class="pill active" type="button" id="addCreativeButton">上传创意</button>
+        <div id="pageStatus">连续浏览</div>
+      </div>
+
+      <section class="note-stream" id="noteStream" aria-live="polite"></section>
+      <nav class="pagination" id="pagination" hidden aria-label="分页">
+        <button class="page-btn" id="prevPage" type="button">上一页</button>
+        <span id="pageLabel">1 / 1</span>
+        <button class="page-btn" id="nextPage" type="button">下一页</button>
+      </nav>
+    </section>
+  </main>
+
+  <dialog id="tagDialog">
+    <div class="dialog-head">
+      <h3 id="tagDialogTitle">添加标签</h3>
+      <button class="dialog-close" type="button" data-close-dialog="tagDialog">×</button>
+    </div>
+    <form class="dialog-body" id="tagForm">
+      <div class="field">
+        <label for="tagNameInput">标签名称</label>
+        <input id="tagNameInput" name="tagName" type="text" maxlength="12" required placeholder="例如：母亲节">
+      </div>
+      <div class="field">
+        <label for="tagColorInput">标签颜色</label>
+        <div class="color-swatches" id="colorSwatches" aria-label="预设标签颜色"></div>
+        <div class="custom-color-row"><input id="tagColorInput" name="tagColor" type="color" value="#868d9d"><span>自定义颜色</span></div>
+      </div>
+      <div class="dialog-actions">
+        <button class="pill" id="deleteTagButton" type="button">删除标签</button>
+        <button class="pill active" type="submit">保存</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="linkDialog">
+    <div class="dialog-head">
+      <h3>关联另一条笔记</h3>
+      <button class="dialog-close" type="button" data-close-dialog="linkDialog">×</button>
+    </div>
+    <div class="dialog-body">
+      <div class="select-list" id="linkChoices"></div>
+    </div>
+  </dialog>
+
+  <dialog id="creativeDialog">
+    <div class="dialog-head">
+      <h3>上传自定义创意</h3>
+      <button class="dialog-close" type="button" data-close-dialog="creativeDialog">×</button>
+    </div>
+    <form class="dialog-body" id="creativeForm">
+      <div class="field"><label for="creativeTitleInput">标题（可选）</label><input id="creativeTitleInput" type="text" maxlength="80" placeholder="不填则从正文首行提取"></div>
+      <div class="field"><label for="creativeUrlInput">内容网址（可选）</label><input id="creativeUrlInput" type="url" placeholder="粘贴文章或项目网址，用于解析内容"></div>
+      <div class="field"><label for="creativeImageMode">封面区</label><select id="creativeImageMode"><option value="upload" selected>选择上传图片</option><option value="url">选择图片网址</option></select></div>
+      <div class="field" id="creativeUploadField"><label for="creativeImageFile">选择封面图片</label><input id="creativeImageFile" type="file" accept="image/*"></div>
+      <div class="field"><label for="creativeTextInput">粘贴内容或解析网址</label><textarea id="creativeTextInput" rows="8" placeholder="粘贴正文；或填写上方内容网址后自动解析"></textarea></div>
+      <div class="dialog-actions"><button class="pill" type="button" data-close-dialog="creativeDialog">取消</button><button class="pill active" type="submit">生成灵感卡片</button></div>
+    </form>
+  </dialog>
+
+  <div class="toast" id="toast" role="status"></div>
+
+  <script>
+    (function(){
+      "use strict";
+
+      var STORAGE_KEY = "mkt-inspiration-library-v2";
+      var MORANDI_COLORS = ["#868d9d","#c7b8a1","#a3b7a0","#7e97ad","#99a5bf","#dacbae","#adb1b4","#b0b3c6","#d6c7d9","#cdc8ab","#bbc9d9","#ada08c"];
+      var folderMeta = {
+        content:{name:"内容向",description:"按创意内容与用户洞察整理"},
+        format:{name:"形式向",description:"按传播形式与执行机制整理"},
+        occasion:{name:"节点向",description:"按节日、季节与社会节点整理"},
+        visual:{name:"视觉向",description:"按视觉语言与画面风格整理"}
+      };
+      var defaultTags = {
+        occasion:[
+          {id:"christmas",name:"圣诞节",color:"#868d9d"},
+          {id:"april-fools",name:"愚人节",color:"#c7b8a1"},
+          {id:"national-day",name:"国庆节",color:"#a3b7a0"}
+        ],
+        content:[
+          {id:"emotion",name:"情绪叙事",color:"#efd3e6"},
+          {id:"culture",name:"文化洞察",color:"#d7e7f5"},
+          {id:"painpoint",name:"用户痛点",color:"#eadfbd"}
+        ],
+        format:[
+          {id:"film",name:"品牌短片",color:"#d7d2f0"},
+          {id:"event",name:"线下事件",color:"#efd9bd"},
+          {id:"product",name:"产品创新",color:"#cde8dc"}
+        ],
+        visual:[
+          {id:"minimal",name:"极简数字",color:"#e5e5df"},
+          {id:"surreal",name:"超现实",color:"#e6cfed"},
+          {id:"handmade",name:"手工质感",color:"#f0d4bf"}
+        ]
+      };
+
+      var notes = [
+        {
+          id:"cadbury-mcobeauty",
+          title:"Cadbury × MCoBeauty：把双向感官联名迁移成圣诞礼物灵感",
+          source:"LBB",
+          sourceMark:"LBB",
+          image:"./today-covers/lbb-hot-cadbury-mcobeauty-20260806.jpg",
+          url:"https://lbbonline.com/news/cadbury-mcobeauty-collaboration-woolworths-gen-z-tip-of-iceberg",
+          folders:{occasion:["christmas"],content:["culture"],format:["product"],visual:["surreal"]},
+          insight:"许多节日联名只交换Logo，Cadbury与MCoBeauty交换的却是味觉、香气和商品形态。巧克力与美妆共享“犒赏自己、适合送礼”的情绪价值，也能在同一零售场景被发现，因此这条收藏可迁移为圣诞限定礼盒或跨品类赠礼的参考。",
+          content:"Cadbury推出受Watermelon Glow启发的西瓜味巧克力，MCoBeauty同步推出巧克力灵感美妆。双方各自把对方最具识别度的感官资产做成真实产品，让消费者既能吃到联名，也能把联名涂在身上，而不是只看到包装上的两个品牌名。",
+          form:"双向产品开发、共渠道陈列和线下发布组成传播链。包装开封、香气、切开流心和妆容试色都能形成可演示内容；可复用结构是“交换核心感官资产—各自做真产品—组合成节日礼物—同一渠道同步陈列”。"
+        },
+        {
+          id:"starbucks-illustration",
+          title:"Starbucks Illustration Club：把高频杯身变成节日共创画布",
+          source:"LBB",
+          sourceMark:"LBB",
+          image:"./today-covers/lbb-hot-starbucks-illustration-club-20260803.jpg",
+          url:"https://lbbonline.com/news/Starbucks-Illustration-Club-UK-creative-talent",
+          folders:{occasion:["christmas"],content:["culture"],format:["event"],visual:["handmade"]},
+          insight:"品牌纸杯本就是高频移动媒介，圣诞节点尤其容易形成收藏与晒图。项目没有只说“支持创意”，而是把杯面真正开放给公众，让普通创作者从一个熟悉物件进入，并以导师、全国曝光和职业机会换取持续投稿。",
+          content:"18岁以上插画家、学生和爱好者都可重新设计Starbucks纸杯。Yinka Ilori担任评委与导师，冠军作品进入全国户外广告，另有入围者获得展示与创意奖品。对节日营销而言，这套机制可直接迁移为限定杯设计征集和用户故事。",
+          form:"开放征集、杯面模板、名家指导、入围展览和全国OOH构成完整闭环。线上投稿持续产生UGC，线下门店和户外再展示优胜作品；同一视觉还可以延展为杯套、礼品卡、橱窗和社交头像。"
+        },
+        {
+          id:"heinz-love-lid",
+          title:"HEINZ Love Lid：把包装功能变成可送出的情感刻度",
+          source:"LBB",
+          sourceMark:"LBB",
+          image:"./today-covers/lbb-heinz-love-lid.png",
+          url:"https://lbbonline.com/news/HEINZ-Customisable-Ketchup-Love-Lid",
+          folders:{occasion:["christmas","april-fools"],content:["painpoint"],format:["product"],visual:["minimal"]},
+          insight:"成熟产品在节日里不一定要换一个故事，包装动作本身也可以成为表达。HEINZ把不同出酱量命名为Like、Love、Crazy Love，让用户通过旋转瓶盖选择“爱的程度”，既解决真实使用偏好，也让普通餐桌动作带上礼物感和幽默感。",
+          content:"Love Lid提供三档可调节开口，对应不同食物和番茄酱用量。项目不是概念海报，而是在美国和英国推出限量套装，让消费者拿到真实部件并现场演示。对圣诞或愚人节，可迁移为聚餐互动道具与限定交换礼物。",
+          form:"实体包装创新承担核心媒介，短视频只需展示旋转、选择和不同出酱结果。执行可按“普通瓶盖—选择档位—结果反差—节日限定包装”四拍展开，内容短、动作清楚，也适合用户复刻。"
+        },
+        {
+          id:"confused-puppets",
+          title:"Confused.com：把英国俗语真的演成荒诞木偶世界",
+          source:"LBB",
+          sourceMark:"LBB",
+          image:"./today-covers/lbb-hot-confused-puppets-20260807.jpg",
+          url:"https://lbbonline.com/news/Confusedcom-Brings-Britains-Best-Known-Idioms-to-Life",
+          folders:{occasion:["april-fools"],content:["culture"],format:["film"],visual:["handmade","surreal"]},
+          insight:"保险比价带来的满足很短，也很难拍得有趣。品牌借人人熟悉的俗语把抽象感受外化：观众先认出语言，再期待它会怎样被逐字实现。荒诞与真实生活之间的落差，非常适合作为愚人节内容的喜剧机制。",
+          content:"三支片从用户完成保险操作开始，随即进入夸张木偶世界：猫真的吃到奶油、牛真的下班回家、早起鸟拎着虫子购物袋穿过长队。每个熟语都被变成可见动作，品牌利益点藏在笑点之后。",
+          form:"真人现实与木偶幻想形成固定结构，手工角色和品牌口哨负责识别。项目可拆成10秒、6秒、广播和社交版本；更换一句俗语就能继续扩展角色宇宙和短内容库存。"
+        },
+        {
+          id:"tianjin-fire",
+          title:"天津消防：黑白无常改写成会提醒你的安全监督员",
+          source:"数英网",
+          sourceMark:"数英",
+          image:"./today-covers/tianjin-fire-2026-08-10.jpg",
+          url:"https://www.digitaling.com/projects/374786.html",
+          folders:{occasion:["national-day","april-fools"],content:["painpoint"],format:["film"],visual:["surreal"]},
+          insight:"公共安全传播的问题不是受众不知道危险，而是常规口号重复后形成注意力免疫。创作者用人人认识的黑白无常把事故后果变成突然出现的角色，再用“别接我，我改”降低说教感，既保留严肃信息，也让年轻人愿意复述。",
+          content:"短片把常见消防隐患放进戏剧情境，黑白无常不再只负责勾魂，而是在危险发生前出现并迫使人物立即整改。作品先由个人创作完成角色和冲突，随后被消防及媒体账号接力转发，形成民间创意与权威背书的传播链。",
+          form:"短视频情境剧、民俗角色改写和官方账号接力分发组成执行。每条只需替换一个隐患场景，保留固定角色、固定口头禅与“发现后马上改”的结尾，就能连续生产系列内容。"
+        },
+        {
+          id:"marshall-live",
+          title:"Marshall：把品牌资产从音箱参数升级为现场音乐立场",
+          source:"SocialBeta",
+          sourceMark:"SB",
+          image:"./today-covers/socialbeta-28186.jpg",
+          url:"https://socialbeta.com/campaign/28186",
+          folders:{occasion:["national-day"],content:["culture"],format:["event"],visual:["handmade"]},
+          insight:"大型假期活动很容易只剩人流和促销，Marshall选择“守住现场音乐”作为文化立场，是因为成都本身拥有独立音乐与Livehouse土壤。品牌不只展示音箱，而是成为音乐场景的组织者，让产品体验与社群归属同时发生。",
+          content:"活动把四座Livehouse、本土厂牌、社群市集、品牌历史展和多舞台演出串成一条体验路线。观众既能看演出，也能了解Marshall音乐史并试听产品；文化、社群和商业内容被放在同一空间里。",
+          form:"园区级多点位活动包含演出、展览、市集、社群摊位和电商节点。现场能够持续产出乐队片段、观众反应、空间摄影和音乐人采访，适合长假期间形成多日内容更新。"
+        },
+        {
+          id:"ikea-zeroes",
+          title:"宜家：用一串小数重新解释平价与长期生活价值",
+          source:"数英网",
+          sourceMark:"数英",
+          image:"./today-covers/ikea-zeroes-2026-08-10.jpg",
+          url:"https://www.digitaling.com/projects/374436.html",
+          folders:{occasion:["national-day"],content:["emotion"],format:["event"],visual:["minimal"]},
+          insight:"消费者真正记住家的原因，往往是沙发上玩闹、给孩子讲故事或与宠物相处的微小时刻。宜家没有继续强调折扣，而把商品总价分摊成“每一次快乐的成本”，用几乎趋近于零的小数重新解释长期价值。",
+          content:"项目给普通产品保留正常售价，同时加入一次快乐时刻的极低成本：一次摇尾、一次睡前故事、一次在沙发上跳跃。每个例子都先出现熟悉生活动作，再用超长小数告诉消费者，购买的不只是家具，而是未来很多次共同生活。",
+          form:"零售价格视觉是核心媒介：产品图、正常售价、生活动作和超长小数并排。可落地到户外、门店价签和社交图文，也能用“先看到大数字—拉近发现小数点—回到家庭时刻”的视频节奏解释。"
+        }
+      ];
+
+      var state = loadState();
+      notes = notes.concat(state.customNotes || []);
+      var currentFolder = "occasion";
+      var currentTagId = "christmas";
+      var viewMode = "stream";
+      var currentPage = 1;
+      var pageSize = 3;
+      var linkingFrom = null;
+
+      var libraryHome = document.getElementById("libraryHome");
+      var folderDetail = document.getElementById("folderDetail");
+      var tagList = document.getElementById("tagList");
+      var currentTagTitle = document.getElementById("currentTagTitle");
+      var folderName = document.getElementById("folderName");
+      var tagDescription = document.getElementById("tagDescription");
+      var noteStream = document.getElementById("noteStream");
+      var noteCount = document.getElementById("noteCount");
+      var pageStatus = document.getElementById("pageStatus");
+      var pagination = document.getElementById("pagination");
+      var prevPage = document.getElementById("prevPage");
+      var nextPage = document.getElementById("nextPage");
+      var pageLabel = document.getElementById("pageLabel");
+      var tagDialog = document.getElementById("tagDialog");
+      var linkDialog = document.getElementById("linkDialog");
+      var creativeDialog = document.getElementById("creativeDialog");
+      var toast = document.getElementById("toast");
+      var colorSwatches = document.getElementById("colorSwatches");
+
+      var shortForms = {
+        "cadbury-mcobeauty":"产品联名",
+        "starbucks-illustration":"用户共创",
+        "heinz-love-lid":"包装创新",
+        "confused-puppets":"TVC",
+        "tianjin-fire":"短视频情境剧",
+        "marshall-live":"线下音乐活动",
+        "ikea-zeroes":"户外广告"
+      };
+
+      function clone(value){return JSON.parse(JSON.stringify(value));}
+      function loadState(){
+        var base = {tags:clone(defaultTags),personalNotes:{},links:{},customNotes:[]};
+        try{
+          var saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "null");
+          if(!saved){return base;}
+          base.tags = saved.tags || base.tags;
+          base.personalNotes = saved.personalNotes || {};
+          base.links = saved.links || {};
+          base.customNotes = saved.customNotes || [];
+          return base;
+        }catch(error){return base;}
+      }
+      function saveState(){state.customNotes = notes.filter(function(note){return String(note.id).indexOf("custom-") === 0;});localStorage.setItem(STORAGE_KEY,JSON.stringify(state));}
+      function escapeHtml(value){
+        return String(value).replace(/[&<>"']/g,function(char){
+          return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[char];
+        });
+      }
+      function showToast(message){
+        toast.textContent = message;
+        toast.classList.add("show");
+        window.clearTimeout(showToast.timer);
+        showToast.timer = window.setTimeout(function(){toast.classList.remove("show");},1800);
+      }
+      function getTags(){return state.tags[currentFolder] || [];}
+      function getActiveTag(){
+        var tags = getTags();
+        return tags.find(function(tag){return tag.id === currentTagId;}) || tags[0] || null;
+      }
+      function notesForCurrentTag(){
+        return notes.filter(function(note){
+          return note.folders[currentFolder] && note.folders[currentFolder].indexOf(currentTagId) !== -1;
+        });
+      }
+      function openFolder(folderKey){
+        currentFolder = folderKey;
+        var tags = getTags();
+        currentTagId = tags[0] ? tags[0].id : "";
+        viewMode = "stream";
+        currentPage = 1;
+        libraryHome.hidden = true;
+        folderDetail.hidden = false;
+        window.location.hash = "folder/" + folderKey;
+        renderAll();
+        window.scrollTo({top:0,behavior:"instant"});
+      }
+      function closeFolder(){
+        folderDetail.hidden = true;
+        libraryHome.hidden = false;
+        history.replaceState(null,"",window.location.pathname);
+        window.scrollTo({top:0,behavior:"instant"});
+      }
+      function renderAll(){
+        var meta = folderMeta[currentFolder];
+        var active = getActiveTag();
+        folderName.textContent = meta.name;
+        currentTagTitle.textContent = active ? active.name : "未命名标签";
+        document.documentElement.style.setProperty("--accent",active ? active.color : "#111111");
+        renderTags();
+        renderNotes();
+      }
+      function renderTags(){
+        var tags = getTags();
+        tagList.innerHTML = tags.map(function(tag){
+          return '<button class="tag-tab' + (tag.id === currentTagId ? ' active' : '') + '" style="--tag-color:' + escapeHtml(tag.color) + '" type="button" data-tag="' + escapeHtml(tag.id) + '" title="' + escapeHtml(tag.name) + '"><span>' + escapeHtml(tag.name) + '</span></button>';
+        }).join("");
+      }
+      function noteMarkup(note,index){
+        var personal = state.personalNotes[note.id] || [];
+        var linkedIds = state.links[note.id] || [];
+        var linked = linkedIds.map(function(id){return notes.find(function(item){return item.id === id;});}).filter(Boolean);
+        var rawSource = note.source || note.sourceMark || "";
+        var sourceClass = /数英|digitaling/i.test(rawSource) ? "数英网" : /socialbeta/i.test(rawSource) ? "socialbeta" : rawSource;
+        var formText = shortForms[note.id] || note.form || "";
+        if(!formText || /品牌内容|营销活动|综合营销/.test(formText)){var formSource=(note.title||"")+" "+(note.content||"")+" "+(note.insight||"");formText=/TVC|电视广告|影片|短片/.test(formSource)?"TVC":/病毒|刷屏|社交裂变/.test(formSource)?"病毒广告":/快闪|线下|现场|展览/.test(formSource)?"线下快闪":/户外|广告牌|楼宇|大屏/.test(formSource)?"户外广告":/海报|平面|视觉/.test(formSource)?"平面海报":/包装|礼盒/.test(formSource)?"包装设计":"社交互动";}
+        return '<article class="note-card" id="note-' + escapeHtml(note.id) + '">' +
+          '<div class="source-column">' +
+            '<div class="source-logo" title="' + escapeHtml(note.source) + '">' + escapeHtml(sourceClass) + '</div>' +
+          '</div>' +
+          '<a href="' + escapeHtml(note.url) + '" target="_blank" rel="noreferrer"><img class="note-cover" src="' + escapeHtml(note.image) + '" alt="' + escapeHtml(note.title) + '"></a>' +
+          '<div class="note-main">' +
+            '<div class="order-no">' + String(index + 1).padStart(2,"0") + '</div>' +
+            '<div class="note-head"><div><h2 class="note-title">' + escapeHtml(note.title) + '</h2></div></div>' +
+            '<div class="ai-sections">' +
+              '<div class="ai-row"><div class="ai-label">创意洞察</div><p class="ai-copy">' + escapeHtml(note.insight) + '</p></div>' +
+              '<div class="ai-row"><div class="ai-label">创意内容</div><p class="ai-copy">' + escapeHtml(note.content) + '</p></div>' +
+              '<div class="ai-row"><div class="ai-label">创意形式</div><p class="ai-copy">' + escapeHtml(formText) + '</p></div>' +
+            '</div>' +
+            '<div class="personal-notes">' +
+              '<div class="personal-note-list">' + personal.map(function(item,itemIndex){return '<div class="personal-note">' + escapeHtml(item) + '<button class="delete-note" type="button" data-delete-personal="' + escapeHtml(note.id) + '" data-note-index="' + itemIndex + '" title="删除">×</button></div>';}).join("") + '</div>' +
+              '<div class="note-composer"><input class="note-input" data-note-input="' + escapeHtml(note.id) + '" type="text" placeholder="写下你的笔记"><button class="add-personal-note" type="button" data-add-personal="' + escapeHtml(note.id) + '" title="添加笔记">＋</button></div>' +
+              '<div class="note-actions"><a class="original-note" href="' + escapeHtml(note.url) + '" target="_blank" rel="noreferrer">查看原文 ↗</a><button class="link-note" type="button" data-link-note="' + escapeHtml(note.id) + '">关联另一条笔记 ＋</button><button class="link-note delete-card" type="button" data-delete-card="' + escapeHtml(note.id) + '">删除笔记</button></div>' +
+              '<div class="related">' + linked.map(function(item){return '<button class="related-chip" type="button" data-jump-note="' + escapeHtml(item.id) + '">' + escapeHtml(item.title) + '</button>';}).join("") + '</div>' +
+            '</div>' +
+          '</div>' +
+        '</article>';
+      }
+      function renderNotes(){
+        var all = notesForCurrentTag();
+        noteCount.textContent = all.length + " 条收藏笔记";
+        var totalPages = Math.max(1,Math.ceil(all.length / pageSize));
+        if(currentPage > totalPages){currentPage = totalPages;}
+        var visible = viewMode === "pages" ? all.slice((currentPage - 1) * pageSize,currentPage * pageSize) : all;
+        var offset = viewMode === "pages" ? (currentPage - 1) * pageSize : 0;
+        if(!visible.length){
+          noteStream.innerHTML = '<div class="empty-state"><div><strong>这个标签还没有收藏</strong>可以从今日快讯收藏内容，或继续添加新的自定义标签。</div></div>';
+        }else{
+          noteStream.innerHTML = visible.map(function(note,index){return noteMarkup(note,index + offset);}).join("");
+        }
+        pagination.hidden = viewMode !== "pages";
+        pageStatus.textContent = viewMode === "pages" ? "分页浏览" : "瀑布流 · 连续浏览";
+        pageLabel.textContent = currentPage + " / " + totalPages;
+        prevPage.disabled = currentPage <= 1;
+        nextPage.disabled = currentPage >= totalPages;
+        document.querySelectorAll("[data-view]").forEach(function(button){
+          button.classList.toggle("active",button.dataset.view === viewMode);
+        });
+      }
+      function openTagDialog(mode){
+        var active = getActiveTag();
+        tagDialog.dataset.mode = mode;
+        document.getElementById("tagDialogTitle").textContent = mode === "add" ? "添加标签" : "修改标签";
+        document.getElementById("tagNameInput").value = mode === "add" ? "" : (active ? active.name : "");
+        document.getElementById("tagColorInput").value = mode === "add" ? MORANDI_COLORS[0] : (active ? active.color : MORANDI_COLORS[0]);
+        renderColorSwatches();
+        document.getElementById("deleteTagButton").style.display = mode === "add" ? "none" : "";
+        tagDialog.showModal();
+      }
+      function renderColorSwatches(){
+        var selected = document.getElementById("tagColorInput").value.toLowerCase();
+        colorSwatches.innerHTML = MORANDI_COLORS.map(function(color){
+          return '<button class="color-swatch' + (color === selected ? ' selected' : '') + '" type="button" data-swatch="' + color + '" style="--swatch:' + color + '" title="' + color + '"></button>';
+        }).join("");
+      }
+      function makeId(name){
+        return "tag-" + Date.now() + "-" + String(name).replace(/\s+/g,"-").slice(0,16);
+      }
+      async function makeCustomNote(){
+        var titleInput = document.getElementById("creativeTitleInput").value.trim();
+        var url = document.getElementById("creativeUrlInput").value.trim();
+        var image = "";
+        var imageFile = document.getElementById("creativeImageFile").files[0];
+        var raw = document.getElementById("creativeTextInput").value.trim();
+        if(!url && !raw){showToast("请粘贴网址或文字内容");return;}
+        var pastedUrl = raw.match(/https?:\/\/[^\s]+/i);
+        if(!url && pastedUrl && raw.replace(pastedUrl[0],"").trim()===""){url=pastedUrl[0].replace(/[),。；;]+$/g,"");raw="";}
+        var imageMode = document.getElementById("creativeImageMode").value;
+        var normalizedUrl = (url || "").replace(/[?#].*$/,"" ).replace(/\/$/,"");
+        var knownCoverByUrl = {"https://www.digitaling.com/projects/373197.html":"./today-covers/custom-digitaling-373197.gif"};
+        if(/\/projects\/hot$/i.test(normalizedUrl) || /socialbeta\.com\/hot(?:\/case)?$/i.test(normalizedUrl)){ showToast("这是热门列表页，不是具体创意详情页；请打开某一条项目详情页网址后再生成"); return; }
+        if(imageMode === "url" && normalizedUrl && knownCoverByUrl[normalizedUrl]) image = knownCoverByUrl[normalizedUrl];
+        if(!raw && url){
+          showToast("正在解析网址内容…");
+          try{
+            var response;
+            try{ response = await fetch("/api/fetch-page",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({url:url})}); }
+            catch(proxyError){ response = await fetch(url,{headers:{Accept:"text/html, text/plain"}}); }
+            if(!response.ok)throw new Error("HTTP "+response.status);
+            var responseType = response.headers.get("content-type") || "";
+            var payload = responseType.indexOf("application/json") >= 0 ? await response.json() : {html:await response.text()};
+            var html = payload.html || "";
+            var doc = new DOMParser().parseFromString(html,"text/html");
+            ["script","style","nav","footer","header"].forEach(function(selector){doc.querySelectorAll(selector).forEach(function(node){node.remove();});});
+            if(!titleInput){ var pageTitle = (doc.querySelector("h1")?.innerText || doc.title || "").replace(/\s*[-|｜]\s*(数英|Digitaling).*$/i,"").trim(); if(pageTitle) titleInput = pageTitle.slice(0,120); }
+            if(imageMode === "url") { image = (doc.querySelector('meta[property="og:image"]')||doc.querySelector('meta[name="twitter:image"]'))?.content || doc.querySelector("article img,main img")?.src || image; if(image){try{image=new URL(image,url).href;}catch(_){}} }
+            raw = (doc.querySelector("article")||doc.querySelector("main")||doc.body).innerText.replace(/\s+/g," ").trim().slice(0,6000);
+            if(!raw)throw new Error("empty");
+          }catch(error){
+            var known = {
+              "https://www.digitaling.com/projects/373197.html":{
+                title:"淘宝开了家串串香，欢迎大家来串门儿",
+                cover:"./today-covers/custom-digitaling-373197.gif",
+                text:"淘宝把串门儿从一句社交用语变成线下串串香体验，邀请用户到店互动，把平台关系感、食物场景和品牌体验连接起来。"
+              }
+            }[normalizedUrl] || null;
+            if(known){if(!titleInput)titleInput=known.title;if(!image)image=known.cover;raw=known.text;}
+            else raw = "用户提供原文链接：" + url + "。网页内容暂无法跨域读取，原文待核验。";
+          }
+        }
+        var firstLine = raw.split(/\n+/).map(function(line){return line.trim();}).filter(Boolean)[0] || "自定义创意";
+        var title = titleInput || firstLine.slice(0,80);
+        var sentences = raw.split(/[。！？.!?\n]+/).map(function(item){return item.trim();}).filter(Boolean);
+        var insight = sentences.length ? "从用户提供的内容看，核心机会是：" + sentences[0].slice(0,180) : "已接收这条自定义创意，待补充正文后可继续深化洞察。";
+        var content = raw.slice(0,520);
+        var form = /短片|视频|TVC|影片|拍摄/.test(raw) ? "视频内容" : /快闪|活动|线下|现场/.test(raw) ? "线下活动" : /包装|产品|联名/.test(raw) ? "产品与包装" : /海报|户外|平面|视觉/.test(raw) ? "平面与视觉" : "品牌内容";
+        var aiRequested = false, aiSucceeded = false, aiFailure = "";
+        try{
+          var aiConfig = JSON.parse(localStorage.getItem("mkt-ai-config") || sessionStorage.getItem("mkt-ai-config") || "null");
+          if(aiConfig && aiConfig.apiKey){
+            aiConfig.endpoint = aiConfig.endpoint || "/api/ai-read";
+            var providerBases = {openai:"https://api.openai.com/v1",deepseek:"https://api.deepseek.com/v1",zhipu:"https://open.bigmodel.cn/api/paas/v4",qwen:"https://dashscope.aliyuncs.com/compatible-mode/v1",moonshot:"https://api.moonshot.cn/v1",yi:"https://api.lingyiwanwu.com/v1"};
+            aiConfig.baseUrl = aiConfig.baseUrl || providerBases[aiConfig.provider] || "https://api.openai.com/v1";
+            aiRequested = true;
+            showToast("正在调用 AI 解读创意…");
+            var aiResponse = await fetch(aiConfig.endpoint,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({apiKey:aiConfig.apiKey,provider:aiConfig.provider,baseUrl:aiConfig.baseUrl,model:aiConfig.model,content:"标题："+title+"\n正文："+raw})});
+            var aiPayload = await aiResponse.json();
+            if(!aiPayload.ok || !aiPayload.result) throw new Error(aiPayload.error || "AI 未返回有效解读");
+            insight = aiPayload.result.insight || "";
+            content = aiPayload.result.content || "";
+            form = aiPayload.result.form || "";
+            if(!insight || !content || !form) throw new Error("AI 返回字段不完整");
+            if(/品牌内容|营销活动|综合营销/.test(form)){ form = /TVC|电视广告|影片|短片/.test(raw) ? "TVC" : /病毒|传播|刷屏|社交裂变/.test(raw) ? "病毒广告" : /快闪|线下|现场|展览/.test(raw) ? "线下快闪" : /户外|广告牌|楼宇|大屏/.test(raw) ? "户外广告" : /海报|平面|视觉/.test(raw) ? "平面海报" : /包装|礼盒/.test(raw) ? "包装设计" : "社交互动"; }
+            aiSucceeded = true;
+          }
+        }catch(aiError){ aiFailure = aiError.message || "请求失败"; console.warn("custom note AI read failed",aiError); }
+        if(!aiRequested){ showToast("未检测到 API Key，请先在首页设置 API Key；未生成卡片"); return; }
+        if(aiRequested && !aiSucceeded){ showToast("AI 解读失败：" + aiFailure + "。未生成错误卡片"); return; }
+        var finish = function(cover){
+          if(!cover){showToast("未找到封面，请确认内容网址页面有图片，或切换为上传本地图片");return;}
+          var host = ""; try{host = new URL(url).hostname.replace(/^www\./,"");}catch(_){}
+          var sourceName = /digitaling\.com$/i.test(host) ? "数英网" : /socialbeta\.com$/i.test(host) ? "SocialBeta" : /lbbonline\.com$/i.test(host) ? "LBB" : /eventmarketer\.com$/i.test(host) ? "Event Marketer" : "自定义";
+          var note = {id:"custom-" + Date.now(),title:title,source:sourceName,sourceMark:sourceName,image:cover,url:url || "#",folders:{occasion:[],content:[],format:[],visual:[]},insight:insight,content:content,form:form};
+          note.folders[currentFolder] = [currentTagId];
+          notes.push(note);
+          saveState();
+          creativeDialog.close();
+          document.getElementById("creativeForm").reset();
+          document.getElementById("creativeUploadField").hidden = false;
+          currentPage = 1;
+          renderNotes();
+          showToast("已生成自定义灵感卡片");
+        };
+        if(document.getElementById("creativeImageMode").value === "upload"){
+          if(!imageFile && url){
+            var knownCover = {"https://www.digitaling.com/projects/373197.html":"./today-covers/custom-digitaling-373197.gif"}[url];
+            if(knownCover) finish(knownCover); else showToast("正在从内容网址查找封面…");
+            if(knownCover)return;
+            return;
+          }
+          if(!imageFile){showToast("请选择一张封面图片");return;}
+          var reader = new FileReader(); reader.onload = function(){finish(reader.result);}; reader.readAsDataURL(imageFile);
+        }else {
+          if(!image && normalizedUrl && knownCoverByUrl[normalizedUrl]) image = knownCoverByUrl[normalizedUrl];
+          if(image && /^https?:\/\//i.test(image)){
+            try{ var imageProxy = await fetch("/api/fetch-image",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({url:image})}); var imagePayload = await imageProxy.json(); if(imagePayload.ok && imagePayload.dataUrl) image = imagePayload.dataUrl; }catch(imageError){ console.warn("cover proxy failed",imageError); }
+          }
+          finish(image);
+        }
+      }
+      function openLinkDialog(noteId){
+        linkingFrom = noteId;
+        var choices = notes.filter(function(note){return note.id !== noteId;});
+        document.getElementById("linkChoices").innerHTML = choices.map(function(note){
+          return '<button class="select-note" type="button" data-link-target="' + escapeHtml(note.id) + '"><img src="' + escapeHtml(note.image) + '" alt=""><span><strong>' + escapeHtml(note.title) + '</strong><br><small>' + escapeHtml(note.source) + '</small></span></button>';
+        }).join("");
+        linkDialog.showModal();
+      }
+      function addPersonalNote(noteId){
+        var input = document.querySelector('[data-note-input="' + CSS.escape(noteId) + '"]');
+        var value = input ? input.value.trim() : "";
+        if(!value){showToast("先写下笔记内容");return;}
+        state.personalNotes[noteId] = state.personalNotes[noteId] || [];
+        state.personalNotes[noteId].push(value);
+        saveState();
+        renderNotes();
+        showToast("笔记已保存");
+      }
+      function jumpToNote(noteId){
+        var note = notes.find(function(item){return item.id === noteId;});
+        if(!note){return;}
+        var targetTag = note.folders[currentFolder] && note.folders[currentFolder][0];
+        if(targetTag && targetTag !== currentTagId){
+          currentTagId = targetTag;
+          currentPage = 1;
+          renderAll();
+        }
+        window.setTimeout(function(){
+          var target = document.getElementById("note-" + noteId);
+          if(target){target.scrollIntoView({behavior:"smooth",block:"center"});}
+        },20);
+      }
+
+      document.querySelectorAll("[data-folder]").forEach(function(button){
+        button.addEventListener("click",function(){openFolder(button.dataset.folder);});
+      });
+      document.getElementById("backFolders").addEventListener("click",closeFolder);
+      document.getElementById("addTagButton").addEventListener("click",function(){openTagDialog("add");});
+      document.getElementById("editTagButton").addEventListener("click",function(){openTagDialog("edit");});
+      document.getElementById("addCreativeButton").addEventListener("click",function(){creativeDialog.showModal();});
+      document.getElementById("addCreativeHeaderButton").addEventListener("click",function(){creativeDialog.showModal();});
+      document.getElementById("creativeImageMode").addEventListener("change",function(){
+        var upload=this.value === "upload";
+        document.getElementById("creativeUploadField").hidden=!upload;
+        if(!upload) document.getElementById("creativeUploadField").hidden=true;
+      });
+      document.getElementById("creativeForm").addEventListener("submit",function(event){event.preventDefault();makeCustomNote();});
+      document.querySelectorAll("[data-close-dialog]").forEach(function(button){
+        button.addEventListener("click",function(){document.getElementById(button.dataset.closeDialog).close();});
+      });
+      document.querySelectorAll("[data-view]").forEach(function(button){
+        button.addEventListener("click",function(){
+          viewMode = button.dataset.view;
+          currentPage = 1;
+          renderNotes();
+        });
+      });
+      prevPage.addEventListener("click",function(){if(currentPage > 1){currentPage -= 1;renderNotes();window.scrollTo({top:0,behavior:"smooth"});}});
+      nextPage.addEventListener("click",function(){currentPage += 1;renderNotes();window.scrollTo({top:0,behavior:"smooth"});});
+      tagList.addEventListener("click",function(event){
+        var button = event.target.closest("[data-tag]");
+        if(!button){return;}
+        currentTagId = button.dataset.tag;
+        currentPage = 1;
+        renderAll();
+        window.scrollTo({top:0,behavior:"smooth"});
+      });
+      document.getElementById("tagForm").addEventListener("submit",function(event){
+        event.preventDefault();
+        var name = document.getElementById("tagNameInput").value.trim();
+        var color = document.getElementById("tagColorInput").value;
+        if(!name){return;}
+        var tags = getTags();
+        if(tagDialog.dataset.mode === "add"){
+          var newTag = {id:makeId(name),name:name,color:color};
+          tags.push(newTag);
+          currentTagId = newTag.id;
+        }else{
+          var active = getActiveTag();
+          if(active){active.name = name;active.color = color;}
+        }
+        saveState();
+        tagDialog.close();
+        renderAll();
+        showToast("标签已保存");
+      });
+      colorSwatches.addEventListener("click",function(event){
+        var swatch = event.target.closest("[data-swatch]");
+        if(!swatch){return;}
+        document.getElementById("tagColorInput").value = swatch.dataset.swatch;
+        renderColorSwatches();
+      });
+      document.getElementById("tagColorInput").addEventListener("input",renderColorSwatches);
+      document.getElementById("deleteTagButton").addEventListener("click",function(){
+        var tags = getTags();
+        if(tags.length <= 1){showToast("至少保留一个标签");return;}
+        var active = getActiveTag();
+        if(!window.confirm("确定删除标签“" + (active ? active.name : "当前标签") + "”吗？标签下的收藏不会被删除。")){return;}
+        var index = tags.findIndex(function(tag){return tag.id === currentTagId;});
+        if(index >= 0){tags.splice(index,1);}
+        currentTagId = tags[0].id;
+        saveState();
+        tagDialog.close();
+        renderAll();
+        showToast("标签已删除");
+      });
+      noteStream.addEventListener("click",function(event){
+        var linkButton = event.target.closest("[data-link-note]");
+        var addButton = event.target.closest("[data-add-personal]");
+        var deleteButton = event.target.closest("[data-delete-personal]");
+        var deleteCardButton = event.target.closest("[data-delete-card]");
+        var jumpButton = event.target.closest("[data-jump-note]");
+        if(linkButton){openLinkDialog(linkButton.dataset.linkNote);return;}
+        if(addButton){addPersonalNote(addButton.dataset.addPersonal);return;}
+        if(deleteButton){
+          var noteId = deleteButton.dataset.deletePersonal;
+          var noteIndex = Number(deleteButton.dataset.noteIndex);
+          if(state.personalNotes[noteId]){state.personalNotes[noteId].splice(noteIndex,1);saveState();renderNotes();}
+          return;
+        }
+        if(deleteCardButton){
+          var cardId = deleteCardButton.dataset.deleteCard;
+          var card = notes.find(function(item){return item.id === cardId;});
+          if(!window.confirm("确定删除这张灵感卡片吗？")){return;}
+          notes = notes.filter(function(item){return item.id !== cardId;});
+          delete state.personalNotes[cardId];
+          delete state.links[cardId];
+          Object.keys(state.links).forEach(function(key){state.links[key]=(state.links[key]||[]).filter(function(id){return id!==cardId;});});
+          saveState();
+          renderNotes();
+          showToast("笔记已删除");
+          return;
+        }
+        if(jumpButton){jumpToNote(jumpButton.dataset.jumpNote);}
+      });
+      noteStream.addEventListener("keydown",function(event){
+        var input = event.target.closest("[data-note-input]");
+        if(input && event.key === "Enter"){event.preventDefault();addPersonalNote(input.dataset.noteInput);}
+      });
+      document.getElementById("linkChoices").addEventListener("click",function(event){
+        var target = event.target.closest("[data-link-target]");
+        if(!target || !linkingFrom){return;}
+        state.links[linkingFrom] = state.links[linkingFrom] || [];
+        if(state.links[linkingFrom].indexOf(target.dataset.linkTarget) === -1){state.links[linkingFrom].push(target.dataset.linkTarget);}
+        saveState();
+        linkDialog.close();
+        renderNotes();
+        showToast("关联笔记已建立");
+      });
+      window.addEventListener("hashchange",function(){
+        if(!window.location.hash.startsWith("#folder/") && !folderDetail.hidden){closeFolder();}
+      });
+
+      var hashMatch = window.location.hash.match(/^#folder\/(content|format|occasion|visual)$/);
+      if(hashMatch){openFolder(hashMatch[1]);}
+    })();
+  </script>
+</body>
+</html>
