@@ -12,6 +12,7 @@
       font-style:normal;
       font-display:swap;
     }
+    @font-face{font-family:"HelveticaLocal";src:url("./preview-assets/fonts/Helvetica.ttf") format("truetype");font-weight:100 900;font-style:normal;font-display:swap}
     :root{
       --ink:#111;
       --paper:#f7f6f1;
@@ -19,13 +20,17 @@
       --muted:#6b6b67;
     }
     *{box-sizing:border-box}
+    [hidden]{display:none!important}
+    #creativeDialog .dialog-actions{display:flex;justify-content:flex-end;gap:12px;padding-top:8px}
+    #creativeDialog .dialog-actions .pill{min-height:36px;padding:0 16px;border:1px solid #111;border-radius:999px;background:#fff;color:#111;font-family:"HelveticaLocal","Helvetica Neue",sans-serif;font-size:14px;line-height:1}
+    #creativeDialog .dialog-actions .pill.active{background:#111;color:#fff;border-color:#111}
     html{scroll-behavior:smooth}
     body{
       margin:0;
       min-height:100vh;
       color:var(--ink);
       background:var(--paper);
-      font-family:"Karrik","PingFang SC","Microsoft YaHei",sans-serif;
+      font-family:"HelveticaLocal","Helvetica Neue","PingFang SC","Microsoft YaHei",sans-serif;
     }
     button,input{font:inherit}
     button{color:inherit}
@@ -49,7 +54,7 @@
       width:100vw;
       height:100vh;
       overflow:hidden;
-      background:#f4f3f1 url("./preview-assets/images/library-home-hd-clean.png") center top/100% 100% no-repeat;
+      background:#f4f3f1 url("./preview-assets/images/library-home-hd-clean.png") center -20px/100% calc(100% + 68px) no-repeat;
     }
     .home-back{
       position:absolute;
@@ -189,6 +194,7 @@
         repeating-linear-gradient(135deg,rgba(0,0,0,.025) 0 1px,transparent 1px 5px),
         #fbfaf6;
     }
+    .creative-upload-pill{position:absolute;right:28px;left:auto;bottom:18px;top:auto;z-index:2;display:inline-flex;align-items:center;justify-content:center;min-height:36px;padding:0 15px;border:1px solid #111;border-radius:999px;background:#fff;color:#111}
       .header-kicker{
       margin:0 0 2px;
       font-family:Georgia,serif;
@@ -221,6 +227,11 @@
       gap:8px;
       padding-top:2px;
     }
+    /* 文件夹名是主标题，当前标签作为次级标题，避免“情绪叙事”压过“内容向”。 */
+    .detail-header .header-kicker,.detail-header .current-tag{font-family:"Karrik","PingFang SC","Microsoft YaHei",sans-serif;font-weight:700}
+    .detail-header .header-kicker{font-size:30px;line-height:1;letter-spacing:-.04em;margin-bottom:14px}
+    .detail-header .current-tag{font-size:38px;line-height:.98;letter-spacing:-.05em;margin-top:0}
+    @media(max-width:760px){.detail-header .header-kicker{font-size:26px;margin-bottom:10px}.detail-header .current-tag{font-size:32px}}
     .pill{
       min-height:36px;
       padding:0 15px;
@@ -710,7 +721,7 @@
       position:relative;
       width:100%;
       max-width:100%;
-      min-height:clamp(260px,22vw,320px);
+      min-height:0;
       padding-top:42px;
     }
     .order-no{
@@ -741,19 +752,7 @@
     }
     .ai-label{font-size:11px;line-height:1.45}
     .ai-copy{font-size:11px;line-height:1.52;color:#222}
-    .ai-row:nth-child(-n+2) .ai-copy{
-      display:-webkit-box;
-      max-width:500px;
-      overflow:hidden;
-      -webkit-box-orient:vertical;
-      -webkit-line-clamp:2;
-    }
-    .ai-row:nth-child(3) .ai-copy{
-      max-width:420px;
-      overflow:hidden;
-      white-space:nowrap;
-      text-overflow:ellipsis;
-    }
+    .ai-row .ai-copy{max-width:560px;overflow:visible;white-space:normal;overflow-wrap:anywhere}
     .personal-notes{margin-top:15px}
     .personal-note-list{gap:5px;margin-bottom:7px}
     .personal-note{
@@ -862,12 +861,15 @@
       .note-cover,.note-main{grid-column:2}
       .note-main{padding-top:34px}
     }
+    #backFolders,#addCreativeHeaderButton{box-sizing:border-box!important;width:auto!important;height:auto!important;min-height:36px!important;padding:0 15px!important;border:1px solid #111!important;border-radius:999px!important;background:#fff!important;color:#111!important;text-decoration:none!important;font-family:"HelveticaLocal","Helvetica Neue","PingFang SC","Microsoft YaHei",sans-serif!important;font-size:15px!important;font-weight:700!important;white-space:nowrap!important;line-height:1!important;letter-spacing:0!important;text-align:center!important}
+    .creative-upload-pill{right:24px!important}
+    .tag-tab span{position:absolute;left:50%;top:50%;width:max-content!important;transform:translate(-50%,-50%) rotate(-90deg)!important;text-align:center!important}
   </style>
 </head>
 <body>
   <main class="library-home" id="libraryHome">
     <div class="home-canvas">
-      <a class="home-back" href="./mkt-inspiration-grid-preview.html" aria-label="返回今日营销快讯">← 返回今日营销快讯</a>
+      <a class="home-back" href="./mkt-inspiration-grid-preview.html" aria-label="返回今日快讯">← 返回今日快讯</a>
       <section class="home-center" aria-label="营销灵感包文件夹">
         <div class="folders">
           <button class="folder-card" type="button" data-folder="content" aria-label="打开内容向文件夹">
@@ -902,6 +904,7 @@
 
     <section class="magazine">
       <header class="detail-header">
+        <button class="pill active creative-upload-pill" type="button" id="addCreativeHeaderButton">上传创意</button>
         <div>
           <p class="header-kicker" id="folderName">节点向</p>
           <h1 class="current-tag" id="currentTagTitle">圣诞节</h1>
@@ -913,6 +916,7 @@
 
       <div class="notes-toolbar">
         <div><strong id="noteCount">0 条收藏笔记</strong> <span class="hint">图片来自原收藏内容，右侧为 AI 帮你读与个人笔记</span></div>
+        <button class="pill active" type="button" id="addCreativeButton">上传创意</button>
         <div id="pageStatus">连续浏览</div>
       </div>
 
@@ -955,6 +959,21 @@
     <div class="dialog-body">
       <div class="select-list" id="linkChoices"></div>
     </div>
+  </dialog>
+
+  <dialog id="creativeDialog">
+    <div class="dialog-head">
+      <h3>上传自定义创意</h3>
+      <button class="dialog-close" type="button" data-close-dialog="creativeDialog">×</button>
+    </div>
+    <form class="dialog-body" id="creativeForm">
+      <div class="field"><label for="creativeTitleInput">标题（可选）</label><input id="creativeTitleInput" type="text" maxlength="80" placeholder="不填则从正文首行提取"></div>
+      <div class="field"><label for="creativeUrlInput">内容网址（可选）</label><input id="creativeUrlInput" type="url" placeholder="粘贴文章或项目网址，用于解析内容"></div>
+      <div class="field"><label for="creativeImageMode">封面区</label><select id="creativeImageMode"><option value="upload" selected>选择上传图片</option><option value="url">选择图片网址</option></select></div>
+      <div class="field" id="creativeUploadField"><label for="creativeImageFile">选择封面图片</label><input id="creativeImageFile" type="file" accept="image/*"></div>
+      <div class="field"><label for="creativeTextInput">粘贴内容或解析网址</label><textarea id="creativeTextInput" rows="8" placeholder="粘贴正文；或填写上方内容网址后自动解析"></textarea></div>
+      <div class="dialog-actions"><button class="pill" type="button" data-close-dialog="creativeDialog">取消</button><button class="pill active" type="submit">生成灵感卡片</button></div>
+    </form>
   </dialog>
 
   <div class="toast" id="toast" role="status"></div>
@@ -1082,6 +1101,7 @@
       ];
 
       var state = loadState();
+      notes = notes.concat(state.customNotes || []);
       var currentFolder = "occasion";
       var currentTagId = "christmas";
       var viewMode = "stream";
@@ -1104,6 +1124,7 @@
       var pageLabel = document.getElementById("pageLabel");
       var tagDialog = document.getElementById("tagDialog");
       var linkDialog = document.getElementById("linkDialog");
+      var creativeDialog = document.getElementById("creativeDialog");
       var toast = document.getElementById("toast");
       var colorSwatches = document.getElementById("colorSwatches");
 
@@ -1119,17 +1140,18 @@
 
       function clone(value){return JSON.parse(JSON.stringify(value));}
       function loadState(){
-        var base = {tags:clone(defaultTags),personalNotes:{},links:{}};
+        var base = {tags:clone(defaultTags),personalNotes:{},links:{},customNotes:[]};
         try{
           var saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "null");
           if(!saved){return base;}
           base.tags = saved.tags || base.tags;
           base.personalNotes = saved.personalNotes || {};
           base.links = saved.links || {};
+          base.customNotes = saved.customNotes || [];
           return base;
         }catch(error){return base;}
       }
-      function saveState(){localStorage.setItem(STORAGE_KEY,JSON.stringify(state));}
+      function saveState(){state.customNotes = notes.filter(function(note){return String(note.id).indexOf("custom-") === 0;});localStorage.setItem(STORAGE_KEY,JSON.stringify(state));}
       function escapeHtml(value){
         return String(value).replace(/[&<>"']/g,function(char){
           return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[char];
@@ -1188,7 +1210,10 @@
         var personal = state.personalNotes[note.id] || [];
         var linkedIds = state.links[note.id] || [];
         var linked = linkedIds.map(function(id){return notes.find(function(item){return item.id === id;});}).filter(Boolean);
-        var sourceClass = note.source === "SocialBeta" ? "SB" : note.sourceMark;
+        var rawSource = note.source || note.sourceMark || "";
+        var sourceClass = /数英|digitaling/i.test(rawSource) ? "数英网" : /socialbeta/i.test(rawSource) ? "socialbeta" : rawSource;
+        var formText = shortForms[note.id] || note.form || "";
+        if(!formText || /品牌内容|营销活动|综合营销/.test(formText)){var formSource=(note.title||"")+" "+(note.content||"")+" "+(note.insight||"");formText=/TVC|电视广告|影片|短片/.test(formSource)?"TVC":/病毒|刷屏|社交裂变/.test(formSource)?"病毒广告":/快闪|线下|现场|展览/.test(formSource)?"线下快闪":/户外|广告牌|楼宇|大屏/.test(formSource)?"户外广告":/海报|平面|视觉/.test(formSource)?"平面海报":/包装|礼盒/.test(formSource)?"包装设计":"社交互动";}
         return '<article class="note-card" id="note-' + escapeHtml(note.id) + '">' +
           '<div class="source-column">' +
             '<div class="source-logo" title="' + escapeHtml(note.source) + '">' + escapeHtml(sourceClass) + '</div>' +
@@ -1200,12 +1225,12 @@
             '<div class="ai-sections">' +
               '<div class="ai-row"><div class="ai-label">创意洞察</div><p class="ai-copy">' + escapeHtml(note.insight) + '</p></div>' +
               '<div class="ai-row"><div class="ai-label">创意内容</div><p class="ai-copy">' + escapeHtml(note.content) + '</p></div>' +
-              '<div class="ai-row"><div class="ai-label">创意形式</div><p class="ai-copy">' + escapeHtml(shortForms[note.id] || "品牌内容") + '</p></div>' +
+              '<div class="ai-row"><div class="ai-label">创意形式</div><p class="ai-copy">' + escapeHtml(formText) + '</p></div>' +
             '</div>' +
             '<div class="personal-notes">' +
               '<div class="personal-note-list">' + personal.map(function(item,itemIndex){return '<div class="personal-note">' + escapeHtml(item) + '<button class="delete-note" type="button" data-delete-personal="' + escapeHtml(note.id) + '" data-note-index="' + itemIndex + '" title="删除">×</button></div>';}).join("") + '</div>' +
               '<div class="note-composer"><input class="note-input" data-note-input="' + escapeHtml(note.id) + '" type="text" placeholder="写下你的笔记"><button class="add-personal-note" type="button" data-add-personal="' + escapeHtml(note.id) + '" title="添加笔记">＋</button></div>' +
-              '<div class="note-actions"><a class="original-note" href="' + escapeHtml(note.url) + '" target="_blank" rel="noreferrer">查看原文 ↗</a><button class="link-note" type="button" data-link-note="' + escapeHtml(note.id) + '">关联另一条笔记 ＋</button></div>' +
+              '<div class="note-actions"><a class="original-note" href="' + escapeHtml(note.url) + '" target="_blank" rel="noreferrer">查看原文 ↗</a><button class="link-note" type="button" data-link-note="' + escapeHtml(note.id) + '">关联另一条笔记 ＋</button><button class="link-note delete-card" type="button" data-delete-card="' + escapeHtml(note.id) + '">删除笔记</button></div>' +
               '<div class="related">' + linked.map(function(item){return '<button class="related-chip" type="button" data-jump-note="' + escapeHtml(item.id) + '">' + escapeHtml(item.title) + '</button>';}).join("") + '</div>' +
             '</div>' +
           '</div>' +
@@ -1219,7 +1244,7 @@
         var visible = viewMode === "pages" ? all.slice((currentPage - 1) * pageSize,currentPage * pageSize) : all;
         var offset = viewMode === "pages" ? (currentPage - 1) * pageSize : 0;
         if(!visible.length){
-          noteStream.innerHTML = '<div class="empty-state"><div><strong>这个标签还没有收藏</strong>可以从今日营销快讯收藏内容，或继续添加新的自定义标签。</div></div>';
+          noteStream.innerHTML = '<div class="empty-state"><div><strong>这个标签还没有收藏</strong>可以从今日快讯收藏内容，或继续添加新的自定义标签。</div></div>';
         }else{
           noteStream.innerHTML = visible.map(function(note,index){return noteMarkup(note,index + offset);}).join("");
         }
@@ -1250,6 +1275,108 @@
       }
       function makeId(name){
         return "tag-" + Date.now() + "-" + String(name).replace(/\s+/g,"-").slice(0,16);
+      }
+      async function makeCustomNote(){
+        var titleInput = document.getElementById("creativeTitleInput").value.trim();
+        var url = document.getElementById("creativeUrlInput").value.trim();
+        var image = "";
+        var imageFile = document.getElementById("creativeImageFile").files[0];
+        var raw = document.getElementById("creativeTextInput").value.trim();
+        if(!url && !raw){showToast("请粘贴网址或文字内容");return;}
+        var pastedUrl = raw.match(/https?:\/\/[^\s]+/i);
+        if(!url && pastedUrl && raw.replace(pastedUrl[0],"").trim()===""){url=pastedUrl[0].replace(/[),。；;]+$/g,"");raw="";}
+        var imageMode = document.getElementById("creativeImageMode").value;
+        var normalizedUrl = (url || "").replace(/[?#].*$/,"" ).replace(/\/$/,"");
+        var knownCoverByUrl = {"https://www.digitaling.com/projects/373197.html":"./today-covers/custom-digitaling-373197.gif"};
+        if(/\/projects\/hot$/i.test(normalizedUrl) || /socialbeta\.com\/hot(?:\/case)?$/i.test(normalizedUrl)){ showToast("这是热门列表页，不是具体创意详情页；请打开某一条项目详情页网址后再生成"); return; }
+        if(imageMode === "url" && normalizedUrl && knownCoverByUrl[normalizedUrl]) image = knownCoverByUrl[normalizedUrl];
+        if(!raw && url){
+          showToast("正在解析网址内容…");
+          try{
+            var response;
+            try{ response = await fetch("/api/fetch-page",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({url:url})}); }
+            catch(proxyError){ response = await fetch(url,{headers:{Accept:"text/html, text/plain"}}); }
+            if(!response.ok)throw new Error("HTTP "+response.status);
+            var responseType = response.headers.get("content-type") || "";
+            var payload = responseType.indexOf("application/json") >= 0 ? await response.json() : {html:await response.text()};
+            var html = payload.html || "";
+            var doc = new DOMParser().parseFromString(html,"text/html");
+            ["script","style","nav","footer","header"].forEach(function(selector){doc.querySelectorAll(selector).forEach(function(node){node.remove();});});
+            if(!titleInput){ var pageTitle = (doc.querySelector("h1")?.innerText || doc.title || "").replace(/\s*[-|｜]\s*(数英|Digitaling).*$/i,"").trim(); if(pageTitle) titleInput = pageTitle.slice(0,120); }
+            if(imageMode === "url") { image = (doc.querySelector('meta[property="og:image"]')||doc.querySelector('meta[name="twitter:image"]'))?.content || doc.querySelector("article img,main img")?.src || image; if(image){try{image=new URL(image,url).href;}catch(_){}} }
+            raw = (doc.querySelector("article")||doc.querySelector("main")||doc.body).innerText.replace(/\s+/g," ").trim().slice(0,6000);
+            if(!raw)throw new Error("empty");
+          }catch(error){
+            var known = {
+              "https://www.digitaling.com/projects/373197.html":{
+                title:"淘宝开了家串串香，欢迎大家来串门儿",
+                cover:"./today-covers/custom-digitaling-373197.gif",
+                text:"淘宝把串门儿从一句社交用语变成线下串串香体验，邀请用户到店互动，把平台关系感、食物场景和品牌体验连接起来。"
+              }
+            }[normalizedUrl] || null;
+            if(known){if(!titleInput)titleInput=known.title;if(!image)image=known.cover;raw=known.text;}
+            else raw = "用户提供原文链接：" + url + "。网页内容暂无法跨域读取，原文待核验。";
+          }
+        }
+        var firstLine = raw.split(/\n+/).map(function(line){return line.trim();}).filter(Boolean)[0] || "自定义创意";
+        var title = titleInput || firstLine.slice(0,80);
+        var sentences = raw.split(/[。！？.!?\n]+/).map(function(item){return item.trim();}).filter(Boolean);
+        var insight = sentences.length ? "从用户提供的内容看，核心机会是：" + sentences[0].slice(0,180) : "已接收这条自定义创意，待补充正文后可继续深化洞察。";
+        var content = raw.slice(0,520);
+        var form = /短片|视频|TVC|影片|拍摄/.test(raw) ? "视频内容" : /快闪|活动|线下|现场/.test(raw) ? "线下活动" : /包装|产品|联名/.test(raw) ? "产品与包装" : /海报|户外|平面|视觉/.test(raw) ? "平面与视觉" : "品牌内容";
+        var aiRequested = false, aiSucceeded = false, aiFailure = "";
+        try{
+          var aiConfig = JSON.parse(localStorage.getItem("mkt-ai-config") || sessionStorage.getItem("mkt-ai-config") || "null");
+          if(aiConfig && aiConfig.apiKey){
+            aiConfig.endpoint = aiConfig.endpoint || "/api/ai-read";
+            var providerBases = {openai:"https://api.openai.com/v1",deepseek:"https://api.deepseek.com/v1",zhipu:"https://open.bigmodel.cn/api/paas/v4",qwen:"https://dashscope.aliyuncs.com/compatible-mode/v1",moonshot:"https://api.moonshot.cn/v1",yi:"https://api.lingyiwanwu.com/v1"};
+            aiConfig.baseUrl = aiConfig.baseUrl || providerBases[aiConfig.provider] || "https://api.openai.com/v1";
+            aiRequested = true;
+            showToast("正在调用 AI 解读创意…");
+            var aiResponse = await fetch(aiConfig.endpoint,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({apiKey:aiConfig.apiKey,provider:aiConfig.provider,baseUrl:aiConfig.baseUrl,model:aiConfig.model,content:"标题："+title+"\n正文："+raw})});
+            var aiPayload = await aiResponse.json();
+            if(!aiPayload.ok || !aiPayload.result) throw new Error(aiPayload.error || "AI 未返回有效解读");
+            insight = aiPayload.result.insight || "";
+            content = aiPayload.result.content || "";
+            form = aiPayload.result.form || "";
+            if(!insight || !content || !form) throw new Error("AI 返回字段不完整");
+            if(/品牌内容|营销活动|综合营销/.test(form)){ form = /TVC|电视广告|影片|短片/.test(raw) ? "TVC" : /病毒|传播|刷屏|社交裂变/.test(raw) ? "病毒广告" : /快闪|线下|现场|展览/.test(raw) ? "线下快闪" : /户外|广告牌|楼宇|大屏/.test(raw) ? "户外广告" : /海报|平面|视觉/.test(raw) ? "平面海报" : /包装|礼盒/.test(raw) ? "包装设计" : "社交互动"; }
+            aiSucceeded = true;
+          }
+        }catch(aiError){ aiFailure = aiError.message || "请求失败"; console.warn("custom note AI read failed",aiError); }
+        if(!aiRequested){ showToast("未检测到 API Key，请先在首页设置 API Key；未生成卡片"); return; }
+        if(aiRequested && !aiSucceeded){ showToast("AI 解读失败：" + aiFailure + "。未生成错误卡片"); return; }
+        var finish = function(cover){
+          if(!cover){showToast("未找到封面，请确认内容网址页面有图片，或切换为上传本地图片");return;}
+          var host = ""; try{host = new URL(url).hostname.replace(/^www\./,"");}catch(_){}
+          var sourceName = /digitaling\.com$/i.test(host) ? "数英网" : /socialbeta\.com$/i.test(host) ? "SocialBeta" : /lbbonline\.com$/i.test(host) ? "LBB" : /eventmarketer\.com$/i.test(host) ? "Event Marketer" : "自定义";
+          var note = {id:"custom-" + Date.now(),title:title,source:sourceName,sourceMark:sourceName,image:cover,url:url || "#",folders:{occasion:[],content:[],format:[],visual:[]},insight:insight,content:content,form:form};
+          note.folders[currentFolder] = [currentTagId];
+          notes.push(note);
+          saveState();
+          creativeDialog.close();
+          document.getElementById("creativeForm").reset();
+          document.getElementById("creativeUploadField").hidden = false;
+          currentPage = 1;
+          renderNotes();
+          showToast("已生成自定义灵感卡片");
+        };
+        if(document.getElementById("creativeImageMode").value === "upload"){
+          if(!imageFile && url){
+            var knownCover = {"https://www.digitaling.com/projects/373197.html":"./today-covers/custom-digitaling-373197.gif"}[url];
+            if(knownCover) finish(knownCover); else showToast("正在从内容网址查找封面…");
+            if(knownCover)return;
+            return;
+          }
+          if(!imageFile){showToast("请选择一张封面图片");return;}
+          var reader = new FileReader(); reader.onload = function(){finish(reader.result);}; reader.readAsDataURL(imageFile);
+        }else {
+          if(!image && normalizedUrl && knownCoverByUrl[normalizedUrl]) image = knownCoverByUrl[normalizedUrl];
+          if(image && /^https?:\/\//i.test(image)){
+            try{ var imageProxy = await fetch("/api/fetch-image",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({url:image})}); var imagePayload = await imageProxy.json(); if(imagePayload.ok && imagePayload.dataUrl) image = imagePayload.dataUrl; }catch(imageError){ console.warn("cover proxy failed",imageError); }
+          }
+          finish(image);
+        }
       }
       function openLinkDialog(noteId){
         linkingFrom = noteId;
@@ -1290,6 +1417,14 @@
       document.getElementById("backFolders").addEventListener("click",closeFolder);
       document.getElementById("addTagButton").addEventListener("click",function(){openTagDialog("add");});
       document.getElementById("editTagButton").addEventListener("click",function(){openTagDialog("edit");});
+      document.getElementById("addCreativeButton").addEventListener("click",function(){creativeDialog.showModal();});
+      document.getElementById("addCreativeHeaderButton").addEventListener("click",function(){creativeDialog.showModal();});
+      document.getElementById("creativeImageMode").addEventListener("change",function(){
+        var upload=this.value === "upload";
+        document.getElementById("creativeUploadField").hidden=!upload;
+        if(!upload) document.getElementById("creativeUploadField").hidden=true;
+      });
+      document.getElementById("creativeForm").addEventListener("submit",function(event){event.preventDefault();makeCustomNote();});
       document.querySelectorAll("[data-close-dialog]").forEach(function(button){
         button.addEventListener("click",function(){document.getElementById(button.dataset.closeDialog).close();});
       });
@@ -1353,6 +1488,7 @@
         var linkButton = event.target.closest("[data-link-note]");
         var addButton = event.target.closest("[data-add-personal]");
         var deleteButton = event.target.closest("[data-delete-personal]");
+        var deleteCardButton = event.target.closest("[data-delete-card]");
         var jumpButton = event.target.closest("[data-jump-note]");
         if(linkButton){openLinkDialog(linkButton.dataset.linkNote);return;}
         if(addButton){addPersonalNote(addButton.dataset.addPersonal);return;}
@@ -1360,6 +1496,19 @@
           var noteId = deleteButton.dataset.deletePersonal;
           var noteIndex = Number(deleteButton.dataset.noteIndex);
           if(state.personalNotes[noteId]){state.personalNotes[noteId].splice(noteIndex,1);saveState();renderNotes();}
+          return;
+        }
+        if(deleteCardButton){
+          var cardId = deleteCardButton.dataset.deleteCard;
+          var card = notes.find(function(item){return item.id === cardId;});
+          if(!window.confirm("确定删除这张灵感卡片吗？")){return;}
+          notes = notes.filter(function(item){return item.id !== cardId;});
+          delete state.personalNotes[cardId];
+          delete state.links[cardId];
+          Object.keys(state.links).forEach(function(key){state.links[key]=(state.links[key]||[]).filter(function(id){return id!==cardId;});});
+          saveState();
+          renderNotes();
+          showToast("笔记已删除");
           return;
         }
         if(jumpButton){jumpToNote(jumpButton.dataset.jumpNote);}
