@@ -1,0 +1,4 @@
+interface:
+  display_name: "营销灵感包"
+  short_description: "按三大栏目生成每日营销灵感并沉淀可读创意库"
+  default_prompt: "使用 $marketing-inspiration-pack，根据“广告灵感”生成今日 HTML；或根据“读创意/收藏灵感”分析链接或粘贴文本。"
