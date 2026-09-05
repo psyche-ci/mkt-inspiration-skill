@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>营销灵感包｜九宫格首页预览</title>
+  <style>
+    @font-face{font-family:Karrik;src:url("./preview-assets/fonts/Karrik-Regular.woff2") format("woff2");font-display:swap}
+    @font-face{font-family:HelveticaLocal;src:url("./preview-assets/fonts/Helvetica.ttf") format("truetype");font-weight:100 900;font-style:normal;font-display:swap}
+    *{box-sizing:border-box}
+    :root{--ink:#111;--line:#bdbdbd;--paper:#fff}
+    body{margin:0;background:var(--paper);color:var(--ink);font-family:HelveticaLocal,"Helvetica Neue","PingFang SC","Microsoft YaHei",sans-serif}
+    .page{width:min(1120px,calc(100% - 56px));margin:0 auto;padding:30px 0 18px}
+    .masthead{height:42px;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;font-size:13px;line-height:1;letter-spacing:-.025em}
+    .brand{font-weight:700}.api-key-wrap{justify-self:end;display:flex;align-items:center}.api-key{border:0;border-radius:999px;background:#111;color:#fff;padding:8px 14px 7px;font:700 11px/1 Karrik,"PingFang SC","Microsoft YaHei",sans-serif;letter-spacing:.01em}.api-key-status{display:none}
+    .switch{display:flex;justify-content:center;gap:26px;padding:0;font-size:13px;font-weight:700}
+    .switch a{color:inherit;text-decoration:none}
+    .switch a:first-child{border-bottom:1px solid var(--ink);padding-bottom:4px}
+    .hero{padding:26px 0 30px;text-align:center}
+    .hero-title{margin:0;display:grid;justify-items:center;gap:20px;font-family:Karrik,sans-serif;font-size:clamp(64px,9vw,128px);line-height:.78;letter-spacing:-.095em;font-weight:400;white-space:nowrap}
+    .hero-title span{font:inherit;line-height:inherit;letter-spacing:inherit}
+    .filters{padding:14px 0 8px;display:flex;align-items:center;justify-content:flex-end;gap:7px;flex-wrap:wrap}
+    .time-filters{padding:0 0 17px;display:flex;align-items:center;justify-content:flex-start;gap:7px}
+    .filter{border:1px solid #b5b5b5;border-radius:999px;padding:5px 10px 4px;font-size:10px;line-height:1;font-weight:700;background:#fff}
+    .filter.active{background:#111;color:#fff;border-color:#111}
+    .grid{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--ink);border-left:1px solid var(--ink);margin-top:16px}
+    .card{min-height:398px;padding:18px 18px 16px;border-right:1px solid var(--ink);border-bottom:1px solid var(--ink);display:flex;flex-direction:column;background:#fff}
+    .card-top{display:flex;align-items:center;justify-content:space-between;color:#666;font-size:9px;line-height:1}
+    .category{border:1px solid #777;border-radius:999px;padding:4px 7px 3px;color:#222;font-size:8px;font-weight:700}
+    .cover{margin:14px 0 14px;width:100%;aspect-ratio:1.58;overflow:hidden;background:#f0f0f0}
+    .cover img{display:block;width:100%;height:100%;object-fit:cover}.evidence-cover{height:100%;display:flex;flex-direction:column;justify-content:space-between;padding:16px;background:#111;color:#fff}.evidence-cover span,.evidence-cover small{font-size:9px;letter-spacing:.04em}.evidence-cover strong{font-size:52px;line-height:.9;letter-spacing:-.06em}
+    .placeholder{display:grid;place-items:center;padding:15px;background:#ededed;color:#777;text-align:center;font-size:10px;line-height:1.35}
+    .card h2{margin:0 0 8px;font-size:18px;line-height:1.05;letter-spacing:-.045em;font-weight:700}
+    .summary{margin:0;color:#3d3d3d;font-family:"PingFang SC","Microsoft YaHei",sans-serif;font-size:11px;line-height:1.55;letter-spacing:-.02em}.evidence{margin-top:8px;color:#666}.access-note{margin-top:6px;color:#777}.mini-tags{display:flex;gap:4px;flex-wrap:wrap;margin:-2px 0 8px}.mini-tag{font:8px/1 "PingFang SC","Microsoft YaHei",sans-serif;color:#666;border-bottom:1px solid #bbb;padding-bottom:2px}
+    .actions{margin-top:auto;padding-top:14px;display:flex;gap:6px;flex-wrap:wrap}
+    .action{border:1px solid var(--ink);border-radius:999px;background:#fff;padding:5px 8px 4px;color:#111;font-family:"PingFang SC","Microsoft YaHei",sans-serif;font-size:9px;line-height:1;font-weight:600}
+    .card{display:grid;perspective:1200px;transform-style:preserve-3d;transition:transform .52s cubic-bezier(.2,.72,.21,1)}
+    .card-front,.card-back{grid-area:1/1;backface-visibility:hidden;-webkit-backface-visibility:hidden}
+    .card-front{display:flex;flex-direction:column;min-width:0}
+    .card-back{display:flex;flex-direction:column;gap:13px;opacity:0;transform:rotateY(180deg);pointer-events:none}
+    .card.is-reading{transform:rotateY(180deg)}
+    .card.is-reading .card-front{opacity:0;pointer-events:none}.card.is-reading .card-back{opacity:1;pointer-events:auto}
+    .reading-label{margin:0;font-size:9px;color:#666}.reading-title{margin:0;font-size:19px;line-height:1.05;letter-spacing:-.045em}
+    .reading-grid{display:grid;gap:9px}.reading-item{padding-bottom:9px;border-bottom:1px solid #ddd}.reading-item:last-child{border-bottom:0}.reading-item strong{display:block;margin-bottom:3px;font-size:10px}.reading-item p{margin:0;font-family:"PingFang SC","Microsoft YaHei",sans-serif;font-size:10px;line-height:1.45;color:#3d3d3d}.reading-item.news-reading{padding:13px;border:1px solid #111}.reading-item.news-reading strong{font-size:12px;margin-bottom:8px}.reading-item.news-reading p{font-size:11px;line-height:1.7}
+    .note-input{width:100%;min-height:56px;margin-top:auto;padding:8px;border:1px solid #aaa;font:10px/1.4 "PingFang SC","Microsoft YaHei",sans-serif;resize:none}.back-actions{display:flex;gap:6px}.back-actions .action{font-family:"PingFang SC","Microsoft YaHei",sans-serif}.pagination{display:flex;justify-content:center;align-items:center;gap:8px;padding:18px 0 4px}.page-button{border:1px solid #111;background:#fff;border-radius:999px;padding:6px 10px;font:10px Karrik,"PingFang SC",sans-serif}.page-button[disabled]{opacity:.35}.page-status{font-size:10px;color:#555;min-width:86px;text-align:center}.empty-state{grid-column:1/-1;padding:45px 20px;text-align:center;color:#666;font-size:12px}
+    @media(max-width:760px){.page{width:calc(100% - 28px);padding-top:18px}.hero-title{font-size:48px;gap:14px}.switch{justify-content:flex-start;gap:18px}.grid{grid-template-columns:1fr 1fr}.card{min-height:340px;padding:13px}.card h2{font-size:15px}.summary{font-size:10px}.filter-label{width:100%}}
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header class="masthead"><strong class="brand">灵感乍现</strong><nav class="switch" aria-label="内容切换"><a href="mkt-inspiration-grid-preview.html">今日快讯</a><a href="ad-daily-digest-library-preview.html">营销灵感包</a></nav><span class="api-key-wrap"><span class="api-key-status" id="apiKeyStatus" aria-live="polite">未设置 API Key</span><button class="api-key" type="button">设置 API KEY</button></span></header>
+    <section class="hero" aria-label="首页标题"><h1 class="hero-title"><span>MKT</span><span>INSPIRATION</span></h1></section>
+    <nav class="filters" aria-label="内容来源类型筛选"><button class="filter" type="button">热点趋势</button><button class="filter" type="button">AI新闻日报</button><button class="filter" type="button">营销案例</button></nav>
+    <nav class="time-filters" aria-label="时间与热度筛选" hidden><button class="filter time-filter active" type="button" data-mode="today">今日要闻</button><button class="filter time-filter" type="button" data-mode="hot">近期热门</button></nav>
+    <section class="grid" id="grid" aria-label="营销灵感列表" hidden></section>
+    <nav class="pagination" aria-label="内容分页" hidden><button class="page-button" id="prevPage" type="button">上一页</button><span class="page-status" id="pageStatus"></span><button class="page-button" id="nextPage" type="button">下一页</button></nav>
+  </main>
+  <dialog id="apiKeyDialog"><form method="dialog" style="min-width:320px;padding:22px;border:1px solid #111"><h3 style="margin:0 0 14px">设置 API KEY</h3><p style="font-size:12px;color:#666;line-height:1.5">支持 OpenAI、DeepSeek、智谱、通义千问、月之暗面、零一万物及兼容 OpenAI 接口的供应商。Key 只保存在本机浏览器。</p><select id="apiProviderInput" style="width:100%;padding:10px;border:1px solid #aaa"><option value="openai">OpenAI</option><option value="deepseek">DeepSeek</option><option value="zhipu">智谱 GLM</option><option value="qwen">通义千问</option><option value="moonshot">月之暗面 Kimi</option><option value="yi">零一万物 Yi</option><option value="custom">自定义兼容接口</option></select><input id="apiKeyInput" type="password" placeholder="粘贴你的 API Key" autocomplete="off" style="width:100%;padding:10px;border:1px solid #aaa;margin-top:8px"><input id="apiModelInput" type="text" value="gpt-4o-mini" placeholder="模型名" style="width:100%;padding:10px;border:1px solid #aaa;margin-top:8px"><input id="apiBaseUrlInput" type="url" placeholder="自定义接口地址（仅自定义时填写）" style="width:100%;padding:10px;border:1px solid #aaa;margin-top:8px;display:none"><div style="display:flex;justify-content:flex-end;gap:8px;margin-top:14px"><button class="action" value="cancel">取消</button><button class="action" id="saveApiKeyButton" value="default">保存</button></div></form></dialog>
+  <script type="application/json" id="legacy-card-script">
+    document.querySelectorAll('.card:not([data-verified])').forEach((card) => card.remove());
+    const readings = [
+      ['成年人常被职业、性格和社会期待贴上稳定标签。VICUTU 没有从男装功能讲起，而是把“被定义”的窒息感设为情绪入口；借刘昊然的公众身份，把“打破标签、自在生长”转译成男性成长与自我选择的品牌态度。','影片让刘昊然进入带有舞台感的失真情境：外界不断投射不同标签，他以轻幽默的反应与行动逐步挣脱既定角色。服装并非被单独陈列，而是随人物在多重身份间切换出现，让产品自然嵌入“重新选择自己”的故事过程。','品牌微电影与代言人叙事结合，以舞台化置景、轻度超现实画面和喜剧节奏推进；可拆为主片、角色片段和社交短剪辑。'],
+      ['线下空间的偶遇感，比品牌信息更容易成为用户的分享理由。','将城市快闪设计为可参与的体验，而不是单向陈列。','快闪场景、限定互动、现场 UGC。'],
+      ['联名的价值来自共同创造新语境，而非两个 Logo 的并置。','让两方品牌以一套视觉语言讲同一个新身份故事。','视觉共创、联名海报、内容联动。'],
+      ['把上新转译为送礼与庆祝，降低产品表达的功能感。','新品被组织成一份等待被打开的节日礼物。','限定包装、礼物清单、节日内容。'],
+      ['留白让信息不立即说完，驱动观众主动补全意义。','用一个视觉谜语替代传统产品卖点说明。','海报、单一主视觉、留白构图。'],
+      ['品牌借用现场真实情绪，而不抢走事件本身的主角。','将运动能量变成用户可以参与的共同记忆。','现场内容、运动文化、社媒共创。'],
+      ['反差让熟悉产品进入陌生语境，形成即时记忆点。','用前后情绪反转完成产品特征的重新解释。','广告片、节奏剪辑、反转叙事。'],
+      ['参与动作足够简单时，路人停留就会转化为传播素材。','街角被重写成用户愿意拍摄的品牌装置。','装置、打卡、线下互动。'],
+      ['重复的视觉节奏比复杂设计更能建立日常识别。','同一图形系统被延展到每个接触点。','图形系统、品牌设计、触点统一。']
+    ];
+    document.querySelectorAll('.card').forEach((card, index) => {
+      const front = document.createElement('div'); front.className = 'card-front';
+      while (card.firstChild) front.appendChild(card.firstChild);
+      const [insight, content, form] = readings[index];
+      const back = document.createElement('div'); back.className = 'card-back';
+      back.innerHTML = `<p class="reading-label">AI 帮你读</p><h2 class="reading-title">${front.querySelector('h2').textContent}</h2><div class="reading-grid"><div class="reading-item"><strong>创意洞察</strong><p>${insight}</p></div><div class="reading-item"><strong>创意内容</strong><p>${content}</p></div><div class="reading-item"><strong>创意形式</strong><p>${form}</p></div></div><textarea class="note-input" placeholder="写下你的想法，保存进灵感库"></textarea><div class="back-actions"><button class="action return-card" type="button">返回正面</button></div>`;
+      card.append(front, back);
+      front.querySelector('.read-toggle').addEventListener('click', () => card.classList.add('is-reading'));
+      back.querySelector('.return-card').addEventListener('click', () => card.classList.remove('is-reading'));
+      const saveButton = front.querySelector('.save-toggle');
+      saveButton.addEventListener('click', () => {
+        const folders = ['内容向', '形式向', '节点向', '视觉向'];
+        const selected = window.prompt(`收藏到哪个文件夹？\\n${folders.join(' / ')}`, '内容向');
+        if (!folders.includes(selected)) return;
+        localStorage.setItem(`mkt-inspiration-save-${card.dataset.itemId}`, selected);
+        saveButton.textContent = `已收藏 · ${selected}`;
+      });
+    });
+  </script>
+  <script type="application/json" id="legacy-data-script">
+  const VERIFIED_ITEMS = [
+    {id:'digitaling-374632',date:'2026-08-11',category:'Video',title:'VICUTU 男装×刘昊然：仿佛看到了《楚门的世界》',summary:'VICUTU 联合刘昊然拍摄品牌微电影，从成年人被外界标签塑造的焦虑切入，以舞台化失真影像和轻幽默叙事呈现“打破标签、自在生长”的品牌态度，把代言人经历与服装品牌的成长主张合在同一故事中。',url:'https://www.digitaling.com/projects/374632.html',cover:'./today-covers/vicutu-liuhaoran-2026-08-11.jpg',heat:'数英当日最新收录项目；项目列表可见数英评分 6.7。',reading:['成年人常被职业、性格和社会期待贴上稳定标签。VICUTU 把“被定义”的窒息感设为情绪入口，借刘昊然的公众身份，把“打破标签、自在生长”转译成男性成长与自我选择。','刘昊然进入带舞台感的失真情境，外界不断投射标签，他以轻幽默反应逐步挣脱既定角色；服装随人物切换身份出现，自然嵌入故事。','品牌微电影与代言人叙事结合，以舞台化置景、轻度超现实画面和喜剧节奏推进，可拆为主片、角色片段和社交短剪辑。']},
+    {id:'socialbeta-28169',date:'2026-08-11',category:'事件营销',title:'友望举办中国「土猫大赏」',summary:'友望携品牌代言咪超级无敌大开门发起「中国土猫大赏」，用滚地锦、乌云盖雪等古代猫咪雅称为本土猫正名，并把领养倡议与宠物家庭清洁产品卖点结合，借文化内容提升宠物友好认知。',url:'https://socialbeta.com/campaign/28169',cover:'https://socialbeta.oss-cn-hangzhou.aliyuncs.com/upload/198246-1786344912.jpg',heat:'编辑精选（页面互动0；无公开播放/阅读）',reading:['把宠物节日从促销节点改造成文化倡议，让被忽视的土猫拥有可传播的语言资产。','以猫咪古称做知识科普与情绪认同，再承接领养呼吁和防缠绕清洁产品功能。','节日话题+品牌代言咪+图文故事+产品功能植入，适合社交平台持续扩散。']},
+    {id:'socialbeta-28170',date:'2026-08-11',category:'Video',title:'刘雯成为 Peak Performance 首位品牌代言人',summary:'北欧户外品牌 Peak Performance 宣布刘雯为首位品牌代言人，以「THE BEST LINE IS YOUR OWN LINE 径由心绘」连接自由滑雪精神与日常穿着，大片用秋冬彩壳诠释性能、美学和不迎合既定路线的品牌价值。',url:'https://socialbeta.com/campaign/28170',cover:'https://socialbeta.oss-cn-hangzhou.aliyuncs.com/upload/38450-1786338123.jpg',heat:'编辑精选（互动0；原文可核验）',reading:['用代言人的真实人生轨迹承载品牌精神，把功能服装从参数沟通升级为自我选择宣言。','围绕自由、自然色与专属轨迹叙事，突出刘雯东方气质和国际视野的双重身份。','品牌宣言+明星大片+新品视觉，兼顾形象片和产品展示。']},
+    {id:'socialbeta-28164',date:'2026-08-11',category:'Video',title:'天猫 × 欧阳娜娜 × 周翊然上演七夕「线定爱」',summary:'天猫七夕礼遇季上线短片《七夕线定爱》，以红线、耳机线、晚霞和蛋糕串联三章青春爱情叙事，最后自然落到送礼上淘宝及立减叠券活动，把偶像剧式内容与电商转化场景编织在一起。',url:'https://socialbeta.com/campaign/28164',cover:'https://socialbeta.oss-cn-hangzhou.aliyuncs.com/upload/224736-1786337029.png',heat:'编辑精选（页面列出8/10-8/19活动）',reading:['把节日营销中的抽象爱情具象为可反复出现的“线”意象，形成跨章节、跨物件的记忆钩子。','三章分别承载味觉记忆、晚霞对视和送礼行动，情绪递进后再带出平台利益点。','明星双主演短片+章节化叙事+电商会场与券促联动。']},
+    {id:'socialbeta-28186',date:'2026-08-11',category:'线下活动营销',title:'Marshall 邀你在成都「守住现场」',summary:'Marshall 携天猫超级品牌日在成都东郊记忆落地全球首场「KEEP LIVE MUSIC ALIVE」音乐文化活动，集合社群市集、四座 Livehouse、品牌历史展和多舞台演出，把品牌六十年音乐资产变成可参与的城市现场。',url:'https://socialbeta.com/campaign/28186',cover:'https://socialbeta.oss-cn-hangzhou.aliyuncs.com/upload/44754-1786380292.jpg',heat:'编辑精选（互动0；8/4-8/9活动已核验）',reading:['将品牌宣言直接变成空间与社群行动，让“守住现场”从口号变成可被体验和分享的文化事件。','同时连接本土厂牌、经典音箱、Jimi Hendrix 历史和 Home IV 居家试听，覆盖文化、产品、社群。','园区多点位沉浸式活动+快闪演出+展览+电商超级品牌日。']},
+    {id:'socialbeta-28152',date:'2026-08-10',category:'Video',title:'美团外卖喊你喝秋天第一杯奶茶了',summary:'美团外卖围绕「秋天第一杯奶茶」推出两支广告片：一支用王男、王广的超现实姐弟叙事把奶茶变成分享快乐的媒介，另一支用生活化场景把配送速度绑定「第1时间喝到」，并配套整点免单与神券。',url:'https://socialbeta.com/campaign/28152',cover:'https://socialbeta.oss-cn-hangzhou.aliyuncs.com/upload/224736-1786326836.png',heat:'页面互动1；编辑精选',reading:['同一节气主题拆成“分享快乐”与“快速拥有”两种消费心理，避免单一情绪表达。','超现实奶茶场景制造记忆点，生活化短片承接速度卖点，再以 App 搜索和整点福利完成转化。','双支TVC+明星/综艺KOL+App搜索活动+整点促销。']},
+    {id:'socialbeta-28139',date:'2026-08-10',category:'品牌联名',title:'瑞幸已严肃加入迪士尼「后妈茶话会」',summary:'瑞幸以「苹果派对」联名迪士尼四位经典反派，围绕毒苹果推出限定饮品、异形杯套和金属冰箱贴等周边，将反派黑化美学与「后妈茶话会」网络语境结合，满足年轻消费者的个性化情绪表达。',url:'https://socialbeta.com/campaign/28139',cover:'https://socialbeta.oss-cn-hangzhou.aliyuncs.com/upload/210618-1786344469.jpg',heat:'页面互动1；编辑精选',reading:['避开传统公主叙事，选择反派角色做情绪代言，让联名从可爱审美转向“黑化”个性。','毒苹果、角色金属贴和魔镜等符号被系统化到饮品、包装、周边和文案。','影视IP联名+限定产品矩阵+角色化包装+社交话题。']},
+    {id:'socialbeta-28171',date:'2026-08-10',category:'品牌联名',title:'润培 × 米菲用香气陪伴日常',summary:'国产个护品牌润培与米菲推出「香伴时光」系列，把米菲陪伴感和护手霜、润唇膏香氛体验结合，并延伸手机支架、手提袋、马克杯等限定周边，让经典IP进入日常随身护理场景。',url:'https://socialbeta.com/campaign/28171',cover:'https://socialbeta.oss-cn-hangzhou.aliyuncs.com/upload/38450-1786340987.jpg',heat:'编辑精选（互动0）',reading:['把IP价值从图案装饰转成“陪伴”情绪，再由随身小物延长使用频次。','清新香调、萌系包装和多品类周边共同构成治愈型生活方式提案。','IP联名新品+香氛个护+限定周边+日常场景化传播。']},
+    {id:'socialbeta-28149',date:'2026-08-10',category:'品牌联名',title:'MAC × SKULLPANDA 见证「万物生花，爱是永恒」',summary:'MAC 首次联手 SKULLPANDA 推出七夕限定，以「花的四重生命」对应四种唇色，从萌芽、盛放到凋落、枯朽讲述爱的变化；程潇广告大片、暗黑童趣包装与手持镜等礼赠共同强化年轻化表达。',url:'https://socialbeta.com/campaign/28149',cover:'https://socialbeta.oss-cn-hangzhou.aliyuncs.com/upload/224935-1786086270.jpg',heat:'编辑精选（互动0）',reading:['用完整生命周期替代“永恒不变”的俗套，把爱情转成可选择的情绪色谱。','四种花与四个色号建立产品-情绪映射，联名IP负责视觉记忆和收藏欲。','明星大片+唇色叙事+潮玩包装+七夕礼赠。']},
+    {id:'marketingdive-827414',date:'2026-08-10',category:'Video',title:'Jif’s new campaign reworks logo to go beyond peanut butter and jelly',summary:'Jif 通过「Every Jif’ing Thing」把红蓝绿三色Logo重组为 dip、sip、mix 等动作，配合《O Fortuna》改编歌曲和60秒主片，展示花生酱从三明治走向拉面、奶昔等更多食用场景，并同步更新视觉识别。',url:'https://www.marketingdive.com/news/jifs-new-campaign-reworks-logo-to-go-beyond-peanut-butter-and-jelly/827414/',cover:'https://imgproxy.divecdn.com/ACi0_9r_HmmPN4QQnG4R2AMrck0hp40GRt0aXer0lQI/g%3Ace/rs%3Afill%3A1200%3A675%3A1/Z3M6Ly9kaXZlc2l0ZS1zdG9yYWdlL2RpdmVpbWFnZS9FdmVyeS1KaWZmaW4tdGhpbmctMjAyNi0wOC0wNC1hdC0xMi41NS4xMFBNLmpwZWc%3D.webp',heat:'Marketing Dive Most Popular #1（页面可见）',reading:['把高识别度Logo从静态资产变成可变动词系统，直接教育消费者新的使用场景。','Logo动作化、内容创作者试吃和模拟烹饪节目共同展示多元吃法，强化品牌资产记忆。','60秒英雄片+广播/流媒体/社媒多渠道+创作者内容+视觉焕新。']},
+    {id:'marketingdive-827309',date:'2026-08-10',category:'跨界营销',title:'P&G’s Always Discreet fights incontinence stigma with NFL campaign',summary:'Always Discreet 与 NFL 及三位球员母亲推出「Protect the Moment」，覆盖电视、数字、社媒、零售与现场体验，用真实球迷妈妈讲解漏尿产品并降低羞耻感，把女性核心受众与高关注体育场景连接。',url:'https://www.marketingdive.com/news/how-pgs-always-discreet-normalizes-incontinence-with-nfl-campaign/827309/',cover:'https://imgproxy.divecdn.com/29EQQnk9Hnolu1S9HSqi1ublugoBidi_tom6JSXIO7o/g%3Ace/rs%3Afill%3A1200%3A675%3A1/Z3M6Ly9kaXZlc2l0ZS1zdG9yYWdlL2RpdmVpbWFnZS9hbHdheXMtbmZsMi5qcGc%3D.webp',heat:'Marketing Dive Most Popular #3（页面可见）',reading:['选择目标人群真实所在的体育场景，让敏感健康议题借球迷身份自然进入对话。','球员母亲作为可信发声者，边讲产品技术边呈现看球时不被打断的生活瞬间。','30秒主片+NFL赛前投放+社媒内容+球场体验+零售联动。']}
+  ];
+  VERIFIED_ITEMS.push(
+    {id:'digitaling-374786-realtime',date:'2026-08-10',category:'真实传播数据',contentType:'实时热点与真实传播数据',source:'数英网',region:'domestic',isRecentHot:true,evidenceLabel:'传播与榜单依据',title:'天津消防把黑白无常拍成消防安全提醒',summary:'创作者把民间传说中的黑白无常变成安全提醒者，用“别接我，我改”的黑色幽默降低消防宣传的说教感。作品随后被天津消防、中国消防、人民网等官方账号转发，在明确的传播链路中完成从个人创作到公共安全内容的扩散。',url:'https://www.digitaling.com/projects/374786.html',cover:'./today-covers/tianjin-fire-2026-08-10.jpg',heat:'数英项目列表可见评分 10、收藏 4、评论 4；原文明确记录天津消防、中国消防、人民网等官方媒体转发。',reading:['消防知识传播的难点不是信息缺失，而是受众对常规警示已经形成注意力免疫。作品把“死亡后果”具象成黑白无常，并用一句“别接我，我改”把恐惧、幽默和行动指令压缩在同一反差里，让安全提醒既能被记住，也能被转述。','内容选择生活中常见的消防隐患，让黑白无常不再只是阴森角色，而是随时出现的安全监督员。个人创作先建立戏剧钩子，天津消防、中国消防、人民网等官方账号随后转发，使民间表达获得权威传播，同时保留原作品的网络语感。','形式是短视频情境剧、民俗角色改写与官方账号接力传播。单条内容能够拆成不同隐患场景连续更新，角色口头禅可以成为统一记忆点；传播效果来自“个人先做出可分享内容、官方再放大”，而不是只靠行政账号单向发布。']},
+    {id:'niod-sephora-20260811',date:'2026-08-11',category:'渠道增长',contentType:'海外产品运营和品牌增长',source:'Global Cosmetic Industry',region:'overseas',isRecentHot:false,evidenceLabel:'运营依据',title:'NIOD 进入 Sephora 北美：科学护肤从小众直营走向高端零售',summary:'DECIEM 旗下 NIOD 于 8 月 11 日先进入 Sephora 北美电商，并计划 8 月 17 日进入美国、加拿大部分门店。品牌没有稀释成分科学与高功效定位，而是利用 Sephora 的教育、试用和门店触点扩大核心用户之外的覆盖。',url:'https://www.gcimagazine.com/brands-products/skin-care/news/22971264/niod-makes-prestige-retail-play-with-sephora-bringing-sciencefirst-skin-care-to-a-wider-audience',cover:'https://img.gcimagazine.com/mindful/allured/workspaces/default/uploads/2026/07/2026-01-27-nid-nec-product-100ml-rl-01.EsNxNig3Zm.jpg?auto=format%2Ccompress&q=70&w=700',heat:'原文明确列出 8 月 11 日北美电商上线、8 月 17 日进入美加部分门店；这是渠道生效信息，不标记为传播热度。',reading:['NIOD 的增长难题不是缺少专业认知，而是高度技术化的表达限制了大众触达。进入 Sephora 的关键价值，是借成熟高端零售渠道把“成分懂行者的小众品牌”带给更广泛消费者，同时不把科学定位降格成普通功效口号。','运营采用线上先行、线下跟进的分阶段节奏：8 月 11 日电商上线先验证搜索、详情页教育与购买需求，8 月 17 日再进入部分门店，用咨询、试用和陈列降低复杂产品的理解门槛。Sephora 获得先进护理品类可信度，NIOD 获得规模化触点。','形式不是单次广告，而是渠道发布、零售内容教育、门店体验和产品组合运营。适合跟踪的后续指标包括站内搜索、首购转化、门店试用、明星单品渗透和复购；页面因此把它归入产品运营与品牌增长，而不是广告创意案例。']}
+  );
+  VERIFIED_ITEMS.forEach(item=>{
+    if(!item.source)item.source=item.id.startsWith('digitaling')?'数英网':item.id.startsWith('socialbeta')?'SocialBeta':'Marketing Dive';
+    if(!item.contentType)item.contentType='营销案例';
+    if(!item.region)item.region=item.source==='Marketing Dive'?'overseas':'domestic';
+    if(item.source==='Marketing Dive'){item.isRecentHot=true;item.evidenceLabel='榜单依据'}
+    if(!item.evidenceLabel)item.evidenceLabel=/互动0|编辑精选/.test(item.heat)?'收录依据':item.id.startsWith('digitaling')?'评分与收录依据':'收录依据';
+  });
+  const READING_OVERRIDES={
+    'digitaling-374632':['成年人在职场、亲密关系和公众评价中，常被“成熟稳重”“固定职业”“某种性格”快速定义。VICUTU 把这种被标签压缩的窒息感作为入口，并借刘昊然从少年演员到成年公众人物的真实成长经历，让“打破标签、自在生长”不仅是品牌口号，也成为目标男性面对身份变化时可以代入的情绪命题。','影片没有直接罗列面料、剪裁或商务场景，而是让刘昊然进入一个像摄影棚又像人生舞台的失真世界：灯光、布景和外界声音不断给他分配角色，他以略带幽默的反应逐步离开预设位置。服装随人物在正式、松弛和行动状态之间切换，承担“身份可以改变，但自我仍然成立”的叙事功能。','执行上采用品牌微电影、代言人个人叙事与舞台化视觉的组合。超现实置景把抽象的社会标签变成可见空间，喜剧节奏降低说教感，服装通过动作和场景自然露出；主片还可拆成单个标签片段、人物金句、造型短剪和幕后内容，适配微博、抖音、小红书等不同传播触点。'],
+    'socialbeta-28169':['国际猫咪日常被品牌做成萌宠促销，友望选择为本土猫“正名”，抓住了养宠人对血统偏见、领养议题和文化身份的共同情绪。滚地锦、乌云盖雪等古代雅称既有知识新鲜感，又能让普通土猫获得独特身份；这使品牌不是借节日卖产品，而是先站在宠物家庭一边建立价值认同。','内容先用古代猫咪雅称重新命名不同花色的中华田园猫，把知识科普变成可收藏、可转发的猫咪图鉴；再由品牌代言咪“超级无敌大开门”串联故事，承接领养倡议。产品并非生硬出现，而是落到宠物家庭真实痛点：猫毛缠绕、日常清洁和人与宠物共居，让防缠绕功能成为支持友好养宠生活的解决方案。','形式是“节日事件＋品牌宠物角色＋文化图鉴＋公益倡议＋产品功能”的完整链路。SocialBeta 原文承担案例说明，社交平台可拆成单只猫海报、古称科普轮播、用户晒猫征集和领养信息；若继续扩展，还可让用户上传照片自动匹配古称，形成UGC参与，而不是只发布一次品牌图文。'],
+    'socialbeta-28170':['户外品牌常用极限环境证明性能，但 Peak Performance 选择刘雯，是把“自由滑雪不走规定线路”的精神映射到她不被单一模特身份限制的人生轨迹。目标受众未必都去雪山，却都能理解“不按别人规定的路线生活”；因此性能服装被转译成个人选择和自我掌控的象征。','核心主张“THE BEST LINE IS YOUR OWN LINE / 径由心绘”同时指滑雪轨迹、人生路线和服装轮廓。大片以刘雯为叙事中心，通过不同秋冬彩壳、自然色彩和动作状态呈现从城市到户外的切换；产品信息集中在防护、层搭和色彩系统，人物的东方气质与国际经历则为品牌进入中国市场提供可信的文化连接。','形式由代言官宣、品牌宣言片、人物大片和新品视觉组成。主片负责建立精神主题，静态照片负责展示轮廓与配色，短视频可拆为刘雯谈“自己的路线”、穿搭转换和户外动作；同一句口号能横跨广告、门店橱窗、社媒话题与产品页，保证品牌价值和销售内容共用一套表达。'],
+    'socialbeta-28164':['七夕广告容易停留在情侣对视和礼物清单，天猫把“缘分红线”转成耳机线、蛋糕装饰、晚霞边缘等日常可见物，抓住年轻人相信浪漫、又反感陈旧神话表达的矛盾。线既是恋爱关系的隐喻，也是贯穿三章故事的视觉线索，让抽象的“注定相遇”变成可以被镜头反复发现的细节。','短片由三段青春爱情情境组成：共同食物形成味觉记忆，晚霞和耳机制造靠近的暧昧时刻，最终通过挑选礼物把情绪落到七夕行动。欧阳娜娜与周翊然承担偶像剧式观看吸引力，红线符号在不同物件间变化；结尾才出现“上淘宝送礼”、立减和叠券信息，先完成情绪沉浸，再把购买变成表达关系的自然下一步。','执行采用明星双主演短片、章节化叙事、统一视觉母题和电商会场联动。每章可以独立剪成社交短视频，红线相关画面可做海报和互动找线内容，演员物料负责扩散，站内会场负责承接转化；形式适合节日营销，因为同一符号既能支撑内容连续性，又能直接连接礼赠商品与优惠机制。'],
+    'socialbeta-28186':['音乐品牌真正的资产不是音箱参数，而是“现场音乐仍值得被守护”的文化立场。Marshall 选择成都东郊记忆，是因为当地独立音乐、Livehouse和年轻社群有真实土壤；品牌把消费者对现场消失、演出空间稀缺的担忧，转化为共同参与的城市文化行动，从而避免只靠复古摇滚符号消费情怀。','活动以“KEEP LIVE MUSIC ALIVE”为总命题，把四座Livehouse、本土厂牌、市集、品牌历史和多舞台演出编织成一条体验路线。观众既能看演出，也能理解Marshall与Jimi Hendrix等音乐历史的联系，还能试听Home IV等产品；文化内容负责建立态度，社群合作提供本地可信度，产品体验则在情绪最强的现场自然发生。','形式是园区级多点位活动，而非单一快闪：演出制造高峰时刻，历史展提供可停留内容，市集和社群摊位增加参与密度，天猫超级品牌日承接线上购买。现场可持续产出乐队片段、观众反应、空间摄影和音乐人采访，使一次线下事件延伸成多周社媒内容与电商素材。'],
+    'socialbeta-28152':['“秋天第一杯奶茶”已经成为固定社交仪式，用户购买的不只是饮品，而是被惦记、及时获得快乐和参与季节话题的证明。美团没有只重复节气文案，而是拆出两种真实动机：和别人分享快乐，以及想在情绪出现的第一时间喝到；两种动机分别对应品牌的社交价值和即时配送能力。','第一支片用王男、王广的超现实姐弟叙事，把巨型奶茶、意外场景和分享动作做成记忆点，强调一杯饮品如何触发关系互动；第二支回到日常，以突然想喝、快速下单、及时送达的连续动作证明“第1时间喝到”。内容最后连接App搜索、整点免单和神券，让情绪理由、服务能力和促销权益依次出现。','形式采用双TVC分工：一支负责情绪和话题，一支负责功能与转化；再叠加明星/综艺人物、站内搜索口令、整点福利和外卖页面资源。相同节点用两种片型覆盖“想分享”和“想马上得到”的人群，可避免一支广告同时塞入过多信息，也方便分别优化社媒传播和效果投放。'],
+    'socialbeta-28139':['年轻消费者对迪士尼联名已经非常熟悉，单纯使用公主和可爱角色很难形成新鲜感。瑞幸反向选择四位经典反派，利用“后妈茶话会”这一网络语境承接自嘲、黑化和个性表达；毒苹果既是反派叙事的核心符号，也能自然转译成饮品口味和派对主题。','内容围绕“苹果派对”展开：毒苹果进入限定饮品命名与视觉，四位反派分别提供角色性格，魔镜、金属贴、异形杯套等道具加强收藏感。文案不把反派洗白，而是鼓励用户借角色表达自己的锋利、野心或坏情绪；产品、包装和周边共同形成一套可拍照的角色身份系统。','形式是影视IP联名、限定饮品、角色化包装、周边收集和社交梗传播的组合。不同反派可拆成多轮预热与人物海报，杯套和冰箱贴负责线下晒图，门店陈列强化派对氛围；“你是哪位后妈”之类测试或用户选角内容还能继续放大参与，而不是把联名停在Logo并置。'],
+    'socialbeta-28171':['米菲的价值不只是可爱形象，而是稳定、安静、长期陪伴的情绪感受。润培把这种陪伴与护手霜、润唇膏等高频随身护理连接，抓住用户在通勤、办公和睡前需要低成本治愈的场景；IP因此从包装装饰变成“每天都能遇见的小伙伴”。','系列以“香伴时光”为核心，把清新香调、手部与唇部护理、米菲表情和柔和包装统一起来。手机支架、手提袋、马克杯等周边覆盖办公和居家场景，使消费者在使用护肤品之外仍持续接触IP；内容重点不是讲复杂功效，而是展示不同日常时刻里，一次涂抹和熟悉形象如何提供短暂放松。','形式采用IP联名新品、香氛个护、限定周边和场景化社媒内容。产品静物负责展示质感，米菲插画负责识别，办公桌、包内随身物和床头等场景负责解释使用频率；套装与赠品机制能推动组合购买，用户晒桌面或包内好物又可形成自然UGC。'],
+    'socialbeta-28149':['七夕常把爱情描述为永恒盛放，但真实关系包含萌芽、热烈、变化甚至结束。MAC与SKULLPANDA用“花的四重生命”承认这种复杂性，契合年轻用户不愿被单一甜蜜叙事定义的态度；四种阶段又能对应不同唇色，让情绪观点直接服务产品选择。','内容把萌芽、盛放、凋落、枯朽分别转成花朵状态、妆容情绪和口红色号，用户选择的不只是颜色，也是当下的关系态度。程潇广告大片提供人物演绎，SKULLPANDA的暗黑童趣形象强化“美与消逝并存”的视觉张力，手持镜、包装和礼赠继续放大收藏属性。','形式由明星大片、四阶段叙事、潮玩IP包装、色号海报和七夕礼赠构成。每个阶段都可独立成为短片或社媒测试，柜台陈列可按生命顺序组织，用户通过“你处在哪一阶段”选择色号；因此内容机制、购买决策和视觉系统是同一个结构，而非先讲故事再硬接产品。'],
+    'marketingdive-827414':['花生酱长期被锁定在PB&J三明治场景，品牌增长的核心障碍不是知名度，而是用户想不到更多吃法。Jif把自身高识别度的红蓝绿Logo改造成可替换的动作词，抓住了“视觉资产已经足够强，可以用它教消费者做新行为”的机会，让品牌焕新直接服务品类扩张。','“Every Jif’ing Thing”把Logo字母重组为dip、sip、mix等动作，并在60秒主片中展示花生酱进入拉面、奶昔、蘸酱等非传统食谱。《O Fortuna》的改编旋律制造夸张仪式感，模拟烹饪节目和创作者试吃则补充可信的使用示范；核心信息是Jif不是某一种搭配，而是一种可以加入任何食物的动作。','执行包括英雄片、广播与流媒体、社媒短视频、创作者内容和视觉识别更新。Logo系统可以持续生成不同动词，使每个新食谱都有统一品牌签名；主片负责改变认知，教程和试吃负责降低尝试门槛，包装及零售陈列则把新用法带到购买现场，形成从品牌传播到实际使用的闭环。'],
+    'marketingdive-827309':['成人漏尿是高普遍度却低公开讨论的健康问题，羞耻感会阻碍用户主动了解产品。Always Discreet选择NFL，是因为大量中年女性既是球迷、也是家庭观赛和社交活动的重要组织者；用“不错过比赛瞬间”而不是“治疗尴尬”切入，把敏感需求放回正常生活目标中。','“Protect the Moment”邀请三位NFL球员母亲出镜，她们以真实球迷和母亲身份讲述看球、庆祝和长时间活动时不想被漏尿打断的体验，同时介绍RapidDry等产品功能。人物关系提供信任，比赛瞬间提供具体场景，产品承担的是让用户继续参与，而不是提醒她们存在身体问题。','形式由30秒主片、NFL赛前媒体、社媒人物内容、零售陈列和球场尾箱派对体验组成。大众投放负责正常化议题，球员母亲内容负责降低距离，现场试用与零售负责解决购买顾虑；体育合作适合此案例，因为它让品牌围绕“保护参与感”建立积极语境，而非只在医疗或护理频道里沟通。']
+  };
+  VERIFIED_ITEMS.forEach(item=>{if(READING_OVERRIDES[item.id])item.reading=READING_OVERRIDES[item.id]});
+  const REPORT_DATES=['2026-08-17'];
+  const pageSize=9;
+  let page=1,category=null,mode='today';
+  const gridEl=document.getElementById('grid'),statusEl=document.getElementById('pageStatus'),prevEl=document.getElementById('prevPage'),nextEl=document.getElementById('nextPage'),timeFiltersEl=document.querySelector('.time-filters'),paginationEl=document.querySelector('.pagination');
+  const escHtml=v=>String(v).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+  const inReportWindow=i=>REPORT_DATES.includes(i.date);
+  const alternateRegions=items=>{
+    if(category!=='营销案例')return items;
+    const overseas=items.filter(i=>i.region==='overseas'),domestic=items.filter(i=>i.region!=='overseas'),ordered=[];
+    while(overseas.length||domestic.length){if(overseas.length)ordered.push(overseas.shift());if(domestic.length)ordered.push(domestic.shift())}
+    return ordered;
+  };
+  const listItems=()=>{
+    if(!category)return[];
+    let items=VERIFIED_ITEMS.filter(i=>i.contentType===category);
+    items=mode==='hot'?items.filter(i=>i.isRecentHot&&(category!=='营销案例'||i.source==='数英网'||i.source==='SocialBeta')):items.filter(inReportWindow);
+    items.sort((a,b)=>mode==='today'?(Number(Boolean(b.isRecentHot))-Number(Boolean(a.isRecentHot))||b.date.localeCompare(a.date)):((b.likes??-1)-(a.likes??-1)||((b.favorites??-1)-(a.favorites??-1))||((b.comments??-1)-(a.comments??-1))||((a.rank??999)-(b.rank??999))||b.date.localeCompare(a.date)));
+    return alternateRegions(items);
+  };
+  async function recoverCover(img,item){
+    if(img.dataset.recovering)return;
+    img.dataset.recovering='1';
+    const box=img.closest('.cover');
+    box.classList.add('placeholder');
+    box.textContent='正在核验原文封面…';
+    img.style.display='none';
+    try{
+      const response=await fetch('/api/find-cover',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({url:item.url})});
+      const payload=await response.json();
+      const candidates=payload.ok&&Array.isArray(payload.candidates)?payload.candidates:[];
+      for(const candidate of candidates){
+        try{
+          const imageResponse=await fetch('/api/fetch-image',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({url:candidate})});
+          const imagePayload=await imageResponse.json();
+          if(imagePayload.ok&&imagePayload.dataUrl){box.textContent='';box.classList.remove('placeholder');box.appendChild(img);img.style.display='block';img.src=imagePayload.dataUrl;img.dataset.recovered='1';return;}
+        }catch(_){/* try the next source image */}
+      }
+    }catch(_){/* continue to explicit no-cover state */}
+    img.remove();box.textContent='原文详情页未找到可核验封面';
+  }
+  function draw(){const items=listItems(),pages=Math.max(1,Math.ceil(items.length/pageSize));page=Math.min(page,pages);const shown=items.slice((page-1)*pageSize,page*pageSize);gridEl.innerHTML=shown.length?'':'<div class="empty-state">当前视图暂无已核验内容</div>';shown.forEach(item=>{const card=document.createElement('article');card.className='card';card.dataset.itemId=item.id;card.innerHTML=`<div class="card-front"><div class="card-top"><time>${escHtml(item.date.replaceAll('-','.'))}</time><span>来源：${escHtml(item.source)}</span><span class="category">${escHtml(item.category)}</span></div><div class="cover"><img src="${escHtml(item.cover)}" alt="案例原文封面：${escHtml(item.title)}" loading="lazy"></div><h2>${escHtml(item.title)}</h2><p class="summary">${escHtml(item.summary)}</p><p class="summary" style="margin-top:8px;color:#666">${escHtml(item.evidenceLabel)}：${escHtml(item.heat)}</p><div class="actions"><a class="action" href="${escHtml(item.url)}" target="_blank" rel="noopener noreferrer">查看原文</a><button class="action read-toggle" type="button">AI帮你读</button><button class="action save-toggle" type="button">收藏</button></div></div><div class="card-back"><p class="reading-label">AI 帮你读 · 来源：${escHtml(item.source)}</p><h2 class="reading-title">${escHtml(item.title)}</h2><div class="reading-grid"><div class="reading-item"><strong>创意洞察</strong><p>${escHtml(item.reading[0])}</p></div><div class="reading-item"><strong>创意内容</strong><p>${escHtml(item.reading[1])}</p></div><div class="reading-item"><strong>创意形式</strong><p>${escHtml(item.reading[2])}</p></div></div><textarea class="note-input" placeholder="写下你的想法，保存进灵感库"></textarea><div class="back-actions"><button class="action return-card" type="button">返回正面</button></div></div>`;gridEl.appendChild(card);const cover=card.querySelector('.cover img');if(/\.svg(?:$|\?)/i.test(item.cover))recoverCover(cover,item);cover.addEventListener('error',()=>recoverCover(cover,item),{once:true});card.querySelector('.read-toggle').onclick=()=>card.classList.add('is-reading');card.querySelector('.return-card').onclick=()=>card.classList.remove('is-reading');const save=card.querySelector('.save-toggle');save.onclick=()=>{const folders=['内容向','形式向','节点向','视觉向'];const selected=prompt(`收藏到哪个文件夹？\n${folders.join(' / ')}`,'内容向');if(!folders.includes(selected))return;localStorage.setItem(`mkt-inspiration-save-${item.id}`,JSON.stringify({folder:selected,item}));save.textContent=`已收藏 · ${selected}`};const saved=localStorage.getItem(`mkt-inspiration-save-${item.id}`);if(saved){try{save.textContent=`已收藏 · ${JSON.parse(saved).folder}`}catch{}}});statusEl.textContent=`${page} / ${pages} · 共 ${items.length} 条`;prevEl.disabled=page<=1;nextEl.disabled=page>=pages}
+  document.querySelectorAll('.filters .filter').forEach(btn=>btn.addEventListener('click',()=>{category=btn.textContent.trim();mode='today';document.querySelectorAll('.filters .filter').forEach(b=>b.classList.toggle('active',b===btn));document.querySelectorAll('.time-filter').forEach(b=>b.classList.toggle('active',b.dataset.mode==='today'));timeFiltersEl.hidden=false;gridEl.hidden=false;paginationEl.hidden=false;page=1;draw()}));
+  document.querySelectorAll('.time-filter').forEach(btn=>btn.addEventListener('click',()=>{mode=btn.dataset.mode;document.querySelectorAll('.time-filter').forEach(b=>b.classList.toggle('active',b===btn));page=1;draw()}));
+  prevEl.onclick=()=>{if(page>1){page--;draw()}};nextEl.onclick=()=>{if(page<Math.ceil(listItems().length/pageSize)){page++;draw()}};
+  </script>
+  <script src="./mkt-inspiration-data-2026-08-11.js"></script>
+  <script src="./mkt-inspiration-data-overrides-2026-08-11.js"></script>
+  <script src="./mkt-inspiration-hotspots-2026-08-11.js"></script>
+  <script src="./mkt-ai-news-data-2026-08-11.js"></script>
+  <script src="./mkt-current-news-2026-08-13.js"></script>
+  <script src="./mkt-current-ads-2026-08-14.js?v=20260818-2"></script>
+  <script src="./mkt-current-ads-2026-08-17.js?v=20260818-2"></script>
+  <script src="./mkt-inspiration-app-2026-08-11.js?v=20260818-2"></script>
+  <script>
+  (()=>{
+    const categories=['热点趋势','AI新闻日报','营销案例'];
+    const hasToday=category=>typeof VERIFIED_ITEMS!=='undefined'&&VERIFIED_ITEMS.some(item=>(item.contentType||'营销案例')===category&&item.date==='2026-08-17');
+    const fallback=()=>categories.find(hasToday);
+    const activate=category=>{const button=[...document.querySelectorAll('.filters > .filter')].find(item=>item.textContent.trim()===category);if(button)button.click();};
+    document.addEventListener('click',event=>{const button=event.target.closest('.filters > .filter');if(!button)return;const requested=button.textContent.trim();if(!hasToday(requested)){const target=fallback();if(target){event.preventDefault();event.stopImmediatePropagation();activate(target);}}},true);
+    window.addEventListener('load',()=>{const target=fallback();if(target)activate(target);});
+  })();
+  </script>
+  <script>
+  (()=>{
+    const dialog=document.getElementById('apiKeyDialog'),form=dialog?.querySelector('form'),save=document.getElementById('saveApiKeyButton'),key=document.getElementById('apiKeyInput'),provider=document.getElementById('apiProviderInput'),model=document.getElementById('apiModelInput'),base=document.getElementById('apiBaseUrlInput'),button=document.querySelector('.api-key');
+    if(!dialog||!form||!save||!key||!provider||!model||!base||!button)return;
+    const presets={openai:['https://api.openai.com/v1','gpt-4o-mini'],deepseek:['https://api.deepseek.com/v1','deepseek-chat'],zhipu:['https://open.bigmodel.cn/api/paas/v4','glm-4-flash'],qwen:['https://dashscope.aliyuncs.com/compatible-mode/v1','qwen-plus'],moonshot:['https://api.moonshot.cn/v1','moonshot-v1-8k'],yi:['https://api.lingyiwanwu.com/v1','yi-lightning'],custom:['','']};
+    const read=()=>{try{return JSON.parse(localStorage.getItem('mkt-ai-config')||'null')}catch(_){return null}};
+    const render=()=>{const configured=Boolean(read()?.apiKey);button.textContent=configured?'API Key 已设置':'设置 API KEY';button.setAttribute('aria-label',button.textContent)};
+    const sync=()=>{const preset=presets[provider.value]||presets.custom;const custom=provider.value==='custom';base.style.display=custom?'block':'none';if(!custom){base.value=preset[0];model.value=preset[1]}};
+    provider.addEventListener('change',sync);
+    button.addEventListener('click',()=>{const cfg=read();provider.value=cfg?.provider||'openai';model.value=cfg?.model||presets[provider.value][1];base.value=cfg?.baseUrl||presets[provider.value][0];key.value='';sync();dialog.showModal()});
+    form.addEventListener('submit',event=>{event.preventDefault();const old=read();const apiKey=key.value.trim()||old?.apiKey||'';const preset=presets[provider.value]||presets.custom;const baseUrl=provider.value==='custom'?base.value.trim():preset[0];if(!apiKey||!baseUrl){alert('请填写有效的 API Key 和接口地址');return}localStorage.setItem('mkt-ai-config',JSON.stringify({provider:provider.value,apiKey,model:model.value.trim()||preset[1],baseUrl}));render();dialog.close()});
+    document.addEventListener('click',async event=>{
+      const trigger=event.target.closest('.read-toggle');if(!trigger)return;
+      const card=trigger.closest('.card');const cfg=read();const data=window.MKT_INSPIRATION_DATA?.items||[];const item=data.find(entry=>entry.id===card?.dataset.itemId);if(!card||!item)return;
+      card.classList.add('is-reading');
+      const fields=[...card.querySelectorAll('[data-ai-field]')];
+      const fail=message=>{fields.forEach((node,index)=>node.textContent=index===0?`读取失败：${message}`:'未生成。');trigger.disabled=false;trigger.textContent='重新读取'};
+      if(!cfg?.apiKey){fail('尚未设置 API Key。请先点击右上角“设置 API KEY”。');dialog.showModal();return}
+      if(location.protocol==='file:'){fail('当前以本地文件方式打开，无法访问 AI 接口。请使用项目启动后的 http(s) 网页地址。');return}
+      fields.forEach((node,index)=>node.textContent=index===0?'正在读取原文并调用 AI 模型…':'生成中…');trigger.disabled=true;trigger.textContent='AI读取中';
+      try{
+        const response=await fetch('/api/ai-read',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({provider:cfg.provider,apiKey:cfg.apiKey,baseUrl:cfg.baseUrl,model:cfg.model,sourceUrl:item.originalUrl,content:[`标题：${item.title}`,`摘要：${item.summary}`,`来源：${item.source}`,`公开依据：${item.evidenceText||''}`].join('\n')})});
+        const payload=await response.json();if(!response.ok||!payload.ok)throw new Error(payload.error||`HTTP ${response.status}`);
+        const result=payload.result||{};const values=item.contentType==='营销案例'?[result.insight,result.content,result.form]:[result.content||result.insight];
+        if(values.some(value=>!String(value||'').trim()))throw new Error('模型返回字段不完整');
+        if(item.contentType==='营销案例'&&(String(result.insight).length<80||String(result.content).length<80||/^(品牌内容|营销活动)$/.test(String(result.form).trim())))throw new Error('模型返回过短或创意形式不具体，请重新读取');
+        fields.forEach((node,index)=>node.textContent=values[index]||'原文未说明');trigger.textContent='AI已解读';
+      }catch(error){fail(error instanceof Error?error.message:String(error))}
+    });
+    render();sync();
+  })();
+  </script>
+</body>
+</html>
