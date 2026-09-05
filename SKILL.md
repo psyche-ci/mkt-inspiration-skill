@@ -7,7 +7,14 @@ description: 营销灵感包：按热点趋势、AI新闻日报、营销案例�
 
 ## 随 Skill 提供的网页应用
 
-本 Skill 安装包内包含 `app/` 完整 MKT INSPIRATION HTML 与素材，以及 `start-mkt-inspiration.mjs` 启动脚本和本地 AI 代理。调用需要交互网页时，直接启动该脚本并打开 `mkt-inspiration-grid-preview.html`；用户不需要另行安装第二个应用包。首次使用由用户自行设置 API Key。
+本 Skill 安装包内包含 `app/` 完整 MKT INSPIRATION HTML 与素材，以及 `start-mkt-inspiration.mjs` 启动脚本和本地 AI 代理。调用需要交互网页时，必须先启动该脚本，再打开它输出的 `http://127.0.0.1:<端口>/mkt-inspiration-grid-preview.html` 地址；用户不需要另行安装第二个应用包。首次使用由用户自行设置 API Key。
+
+### 网页应用启动规则（必须遵守）
+
+- 不得从 Finder、Skill 文件列表或聊天附件直接打开 HTML，也不得使用 `file://` 地址；页面之间的相对链接和图片资源依赖 HTTP 服务。
+- 启动方式：在本 Skill 目录运行 `node start-mkt-inspiration.mjs`，以终端打印的 HTTP 地址为准；默认入口是 `http://127.0.0.1:8788/mkt-inspiration-grid-preview.html`，营销灵感包入口是同端口下的 `ad-daily-digest-library-preview.html`。
+- 点击“营销灵感包”必须从上述 HTTP 首页进入，或在同一 HTTP 端口直接打开灵感库入口；保持启动脚本运行期间再进行抓取、读创意、收藏和灵感库操作。
+- 若浏览器出现 `ERR_FILE_NOT_FOUND`，应判定为打开了失效的本地文件路径：重新启动脚本并改用其打印的 HTTP 地址，不要继续返回旧的本地文件链接。若出现 `ERR_CONNECTION_REFUSED`，先检查服务是否仍在运行并重启后再验收。
 
 这是一个面向广告、品牌、内容和增长团队的营销灵感包：每天从三个固定栏目召回当天可核验内容，整理为可浏览、可筛选、可收藏的灵感卡片，并支持后续“读创意”和长期灵感沉淀。默认使用用户所在地时区；未提供时使用当前系统时区。
 
