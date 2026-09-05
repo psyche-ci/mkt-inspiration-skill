@@ -19,6 +19,21 @@ const port = Number(process.env.MKT_PORT || 8788);
 const providerBases = {
   deepseek: "https://api.deepseek.com/v1",
 };
+const FETCH_TIMEOUT_MS = 15_000;
+const AI_TIMEOUT_MS = 30_000;
+
+const fetchWithTimeout = async (url, options = {}, timeoutMs = FETCH_TIMEOUT_MS) => {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    return await fetch(url, { ...options, signal: controller.signal });
+  } catch (error) {
+    if (error?.name === "AbortError") throw new Error(`请求超时（${Math.round(timeoutMs / 1000)} 秒）：${url}`);
+    throw error;
+  } finally {
+    clearTimeout(timer);
+  }
+};
 
 const json = (res, body, status = 200) => {
   const payload = JSON.stringify(body);
@@ -66,7 +81,7 @@ const imageCandidates = (html, pageUrl) => {
 
 const fetchPage = async (url) => {
   if (!/^https?:\/\//i.test(url)) throw new Error("valid http(s) URL required");
-  const response = await fetch(url, { headers: { "user-agent": "Mozilla/5.0 MKT-Inspiration/1.0", accept: "text/html,application/xhtml+xml" } });
+  const response = await fetchWithTimeout(url, { headers: { "user-agent": "Mozilla/5.0 MKT-Inspiration/1.0", accept: "text/html,application/xhtml+xml" } });
   if (!response.ok) throw new Error(`source page HTTP ${response.status}`);
   return response.text();
 };
@@ -99,7 +114,7 @@ async function api(pathname, input) {
   if (pathname === "/api/fetch-image") {
     const url = String(input.url || "").trim();
     if (!/^https?:\/\//i.test(url)) throw new Error("valid image URL required");
-    const response = await fetch(url, { headers: { "user-agent": "Mozilla/5.0 MKT-Inspiration/1.0", accept: "image/avif,image/webp,image/apng,image/*,*/*;q=0.8" } });
+    const response = await fetchWithTimeout(url, { headers: { "user-agent": "Mozilla/5.0 MKT-Inspiration/1.0", accept: "image/avif,image/webp,image/apng,image/*,*/*;q=0.8" } }, 20_000);
     if (!response.ok) throw new Error(`image HTTP ${response.status}`);
     const bytes = Buffer.from(await response.arrayBuffer());
     if (bytes.length > 12_000_000) throw new Error("image too large");
@@ -125,11 +140,11 @@ async function api(pathname, input) {
   }
   if (!isTest && /^https?:\/\//i.test(sourceUrl) && !sourceText) throw new Error("原文页面无法读取或正文不足，未生成猜测内容");
   const prompt = `${sourceText ? sourceText + "\n\n" : ""}卡片已核验信息：\n${supplied}\n\n请只依据以上原文和已核验信息输出 JSON，字段必须是 insight、content、form。insight 和 content 各写 2-3 句具体、连贯的话，控制在卡片显示不超过三行，讲清用户问题、核心策略、实际执行和品牌如何进入，不要堆砌背景。form 只返回 2-5 个与原文对应的具体执行关键词，用“、”分隔，例如“事件营销、户外广告”或“TVC、平面海报”，不要写解释长句，也禁止使用“品牌内容”“营销活动”等泛化词。禁止随机生成、把导航词或标签当正文；原文不足时明确写“原文未说明”。只返回 JSON，不要 Markdown。`;
-  const upstream = await fetch(`${baseUrl}/chat/completions`, {
+  const upstream = await fetchWithTimeout(`${baseUrl}/chat/completions`, {
     method: "POST",
     headers: { "content-type": "application/json", authorization: `Bearer ${apiKey}` },
     body: JSON.stringify({ model, temperature: 0.3, max_tokens: 2200, messages: [{ role: "system", content: isTest ? "只回复 OK。" : "你是营销创意分析师，严格遵守 JSON 和事实边界。" }, { role: "user", content: prompt }] }),
-  });
+  }, AI_TIMEOUT_MS);
   const payload = await upstream.json();
   if (!upstream.ok) throw new Error(payload?.error?.message || `upstream HTTP ${upstream.status}`);
   if (isTest) return { ok: true, model };
