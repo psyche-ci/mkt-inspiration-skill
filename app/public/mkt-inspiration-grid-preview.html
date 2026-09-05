@@ -19,6 +19,8 @@
     .hero{padding:26px 0 30px;text-align:center}
     .hero-title{margin:0;display:grid;justify-items:center;gap:20px;font-family:Karrik,sans-serif;font-size:clamp(64px,9vw,128px);line-height:.78;letter-spacing:-.095em;font-weight:400;white-space:nowrap}
     .hero-title span{font:inherit;line-height:inherit;letter-spacing:inherit}
+    .usage-guide{border-top:1px solid #111;border-bottom:1px solid #111;padding:12px 0 11px;margin:0 0 12px;font-size:11px;line-height:1.6;color:#444}
+    .usage-guide strong{color:#111;margin-right:6px}
     .filters{padding:14px 0 8px;display:flex;align-items:center;justify-content:flex-end;gap:7px;flex-wrap:wrap}
     .time-filters{padding:0 0 17px;display:flex;align-items:center;justify-content:flex-start;gap:7px}
     .filter{border:1px solid #b5b5b5;border-radius:999px;padding:5px 10px 4px;font-size:10px;line-height:1;font-weight:700;background:#fff}
@@ -74,6 +76,7 @@
   <main class="page">
     <header class="masthead"><strong class="brand">灵感乍现</strong><nav class="switch" aria-label="内容切换"><a href="mkt-inspiration-grid-preview.html">今日快讯</a><a href="ad-daily-digest-library-preview.html">营销灵感包</a></nav><span class="api-key-wrap"><span class="api-key-status" id="apiKeyStatus" aria-live="polite">未设置 API Key</span><button class="api-key" type="button">设置 API KEY</button></span></header>
     <section class="hero" aria-label="首页标题"><h1 class="hero-title"><span>MKT</span><span>INSPIRATION</span></h1></section>
+    <section class="usage-guide" aria-label="使用提示"><strong>使用提示</strong>输入“抓取今日营销案例 / AI新闻日报 / 热点趋势”可更新对应栏目；输入“抓取近期热门”更新热门内容，不注明栏目则三个栏目一起抓取（耗时较长）。使用“AI帮你读”和“自定义上传创意”前，请先设置 DeepSeek API Key；看到喜欢的创意可点击“收藏”，加入四类灵感包。</section>
     <nav class="filters" aria-label="内容来源类型筛选"><button class="filter" type="button">热点趋势</button><button class="filter" type="button">AI新闻日报</button><button class="filter" type="button">营销案例</button></nav>
     <nav class="time-filters" aria-label="时间与热度筛选" hidden><button class="filter time-filter active" type="button" data-mode="today">今日要闻</button><button class="filter time-filter" type="button" data-mode="hot">近期热门</button></nav>
     <section class="grid" id="grid" aria-label="营销灵感列表" hidden></section>
