@@ -63,6 +63,8 @@
 
 - AI 读创意内容默认不展示。
 - 点击 `AI帮你读` 后，当前九宫格卡片翻面显示 `card-back` 面板。
+- AI 解读成功后按钮保持可点击并标记“AI已解读”；用户返回正面后再次点击应直接复看已生成结果，不得被 disabled 状态锁死。
+- 接口返回的 `form` 既可能是字符串也可能是数组，渲染前统一规范为“、”分隔的具体执行关键词。
 - 展开动效使用高度、透明度和位移过渡：
   - 收起：`max-height: 0; opacity: 0; transform: translateY(-8px);`
   - 展开：`max-height: 430px; opacity: 1; transform: translateY(0);`
