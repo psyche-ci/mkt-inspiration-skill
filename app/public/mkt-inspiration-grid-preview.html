@@ -42,7 +42,7 @@
     .card.is-reading{transform:rotateY(180deg)}
     .card.is-reading .card-front{opacity:0;pointer-events:none}.card.is-reading .card-back{opacity:1;pointer-events:auto}
     .reading-label{margin:0;font-size:9px;color:#666}.reading-title{margin:0;font-size:19px;line-height:1.05;letter-spacing:-.045em}
-    .reading-grid{display:grid;gap:9px}.reading-item{padding-bottom:9px;border-bottom:1px solid #ddd}.reading-item:last-child{border-bottom:0}.reading-item strong{display:block;margin-bottom:3px;font-size:10px}.reading-item p{margin:0;font-family:"PingFang SC","Microsoft YaHei",sans-serif;font-size:10px;line-height:1.45;color:#3d3d3d}.reading-item p[data-ai-field="insight"],.reading-item p[data-ai-field="content"]{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;overflow:hidden;max-height:4.35em}.reading-item p[data-ai-field="form"]{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:1;overflow:hidden;max-height:1.45em}.reading-item.news-reading{padding:13px;border:1px solid #111}.reading-item.news-reading strong{font-size:12px;margin-bottom:8px}.reading-item.news-reading p{font-size:11px;line-height:1.7}
+    .reading-grid{display:grid;gap:9px}.reading-item{padding-bottom:9px;border-bottom:1px solid #ddd}.reading-item:last-child{border-bottom:0}.reading-item strong{display:block;margin-bottom:3px;font-size:10px}.reading-item p{margin:0;font-family:"PingFang SC","Microsoft YaHei",sans-serif;font-size:10px;line-height:1.45;color:#3d3d3d;white-space:pre-wrap;overflow-wrap:anywhere}.reading-item p[data-ai-field="insight"],.reading-item p[data-ai-field="content"],.reading-item p[data-ai-field="form"]{display:block;overflow:visible;max-height:none}.reading-item.news-reading{padding:13px;border:1px solid #111}.reading-item.news-reading strong{font-size:12px;margin-bottom:8px}.reading-item.news-reading p{font-size:11px;line-height:1.7}
     .note-input{width:100%;min-height:56px;margin-top:auto;padding:8px;border:1px solid #aaa;font:10px/1.4 "PingFang SC","Microsoft YaHei",sans-serif;resize:none}.back-actions{display:flex;gap:6px}.back-actions .action{font-family:"PingFang SC","Microsoft YaHei",sans-serif}.pagination{display:flex;justify-content:center;align-items:center;gap:8px;padding:18px 0 4px}.page-button{border:1px solid #111;background:#fff;border-radius:999px;padding:6px 10px;font:10px Karrik,"PingFang SC",sans-serif}.page-button[disabled]{opacity:.35}.page-status{font-size:10px;color:#555;min-width:86px;text-align:center}.empty-state{grid-column:1/-1;padding:45px 20px;text-align:center;color:#666;font-size:12px}
     .folder-picker-backdrop{position:fixed;inset:0;z-index:1000;display:grid;place-items:center;padding:20px;background:rgba(0,0,0,.38)}
     .folder-picker{width:min(420px,calc(100vw - 40px));padding:24px;background:#fff;border:1px solid #111;border-radius:18px;box-shadow:0 18px 60px rgba(0,0,0,.22)}
@@ -129,7 +129,7 @@
         const payload=await response.json();if(!response.ok||!payload.ok)throw new Error(payload.error||`HTTP ${response.status}`);
         const result=payload.result||{};const values=item.contentType==='营销案例'?[result.insight,result.content,result.form]:[result.content||result.insight];
         if(values.some(value=>!String(value||'').trim()))throw new Error('模型返回字段不完整');
-        if(item.contentType==='营销案例'&&(String(result.insight).length<30||String(result.content).length<30||String(result.form).length<2||/品牌内容|营销活动/.test(String(result.form))))throw new Error('模型返回不完整或创意形式不具体，请重新读取');
+        if(item.contentType==='营销案例'&&/品牌内容|营销活动/.test(String(result.form)))throw new Error('创意形式不具体，请重新读取');
         fields.forEach((node,index)=>node.textContent=values[index]||'原文未说明');trigger.disabled=false;trigger.dataset.aiReady='1';trigger.textContent='AI已解读';
       }catch(error){fail(error instanceof Error?error.message:String(error))}
     });
@@ -138,4 +138,3 @@
   </script>
 </body>
 </html>
-
