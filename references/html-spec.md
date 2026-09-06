@@ -1,30 +1,26 @@
 # HTML 视觉规范
 
-采用“黑白杂志目录 / 创意情报索引”风格。页面应像一本广告创意杂志的目录页：黑色浏览器背景承托白色编辑画布，超大无衬线标题建立视觉锚点，新闻内容以一行一条的横向目录列表呈现。
+采用原始 MKT INSPIRATION 九宫格风格：白色编辑画布、黑白细线、超大无衬线标题，内容以三列×三行卡片网格呈现。
 
 ## 视觉语言
 
-- 外层背景使用纯黑 `#000000`；主内容容器使用白色 `#FFFFFF`，居中显示。
+- 页面背景和主内容容器使用白色 `#FFFFFF`，居中显示；不得添加黑色浏览器背景或黑色外框。
 - UI 主色只使用黑、白、灰。彩色只能来自原文封面图或少量状态强调，不要再使用大面积彩色卡片。
-- 主标题使用超粗无衬线字体，英文可用 `AD INSPIRATION`，字号极大，接近画布宽度。
+- 主标题使用 `MKT` 与 `INSPIRATION` 两行超大无衬线字，保持原始九宫格模板的比例、字距和居中位置；不得改成 `AD INSPIRATION` 单行旧标题。
 - 分割线使用 1px 浅灰线，承担层次划分。不要使用厚重描边、拟物阴影、手绘边框或胶囊式大按钮作为主视觉。
-- 整体气质应接近：杂志目录、编辑部档案、作品索引、极简情报流。
+- 整体气质应接近：九宫格灵感墙、编辑部档案、极简情报索引。
 
 ## 首页布局
 
-- 内容最大宽度约 760px；白色画布左右内边距约 28px，整体保持参考图的窄版杂志页比例，不要铺满浏览器宽度。
+- 内容最大宽度约 1120px；白色画布左右内边距约 28px，整体保持原始九宫格页面比例。
 - 顶部 Hero 包含：
-  - 顶部细导航线：左侧 `AD INSPIRATION PACK`，右侧 `DAILY / LIBRARY / AI READING`；
-  - 单行超大主标题，例如 `INSPIRATION`，不要拆成两行；
-  - 不展示大段说明文案。
+  - 顶部导航：左侧“灵感乍现”，中间“今日快讯 / 营销灵感包”，右侧 API Key 状态；
+  - 两行超大主标题 `MKT`、`INSPIRATION`；
+  - 可保留简短“使用提示”，不得用旧模板的英文导航替换。
 - Hero 下方的分类和搜索必须接在同一张白色画布内，不能单独形成一块白色模块，也不能被黑色背景割裂。分类筛选使用小字导航形态，选中态用细下划线，不使用大面积彩色按钮。
-- 今日抓取列表必须是单列目录流。每条内容独占一行，禁止两条并排。
-- 每条新闻使用五列结构：
-
-  `编号 / 原文封面图 / 标题与来源 / 极短摘要或元信息 / 操作区`
-
-- 每条列表项之间用 1px 横线分隔，不使用传统卡片边框。
-- 首页不要在列表上方展示解释性文案，例如“每日抓取内容如何展示”“点击后如何展开”等说明。交互通过按钮和动效表达。
+- 今日抓取列表必须是三列×三行九宫格；九张卡片按原始模板等宽排列，保留 1px 黑色网格边框、封面比例、标题、摘要、操作按钮和翻面阅读交互。
+- 不得生成单列目录流、五列新闻行、纵向列表或 `AD INSPIRATION PACK / DAILY / LIBRARY / AI READING` 旧模板。
+- 首页筛选和分页位于九宫格上方/下方，不改变卡片网格结构。
 
 ## 原文封面图规则
 
@@ -47,37 +43,26 @@
 <div class="cover cover-missing">原文未提供<br>可核验封面</div>
 ```
 
-## 新闻行组件
+## 九宫格卡片组件
 
 每条新闻建议使用以下结构：
 
 ```html
-<article class="digest-row" data-category="Video">
-  <div class="issue-no">01</div>
-  <!-- 可核验图片；没有则使用 cover-missing -->
-  <img class="cover" src="..." alt="案例原文封面：..." loading="lazy">
-  <div>
-    <div class="meta"><span class="badge">Video</span><span class="badge rank">今日必看 #1</span><span>来源 · 日期</span></div>
-    <h2>标题</h2>
-    <div class="tags"><span class="tag">标签</span></div>
-    <div class="save-box"><span>选择收藏夹：</span><button>节点向</button><button>内容向</button><button>形式向</button><button>视觉向</button></div>
+<article class="card" data-category="营销案例">
+  <div class="card-front">
+    <div class="card-top"><time>2026.09.06</time><span>来源：数英网</span><span class="category">户外广告</span></div>
+    <div class="cover"><img src="..." alt="案例原文封面：..." loading="lazy"></div>
+    <h2>标题</h2><p class="summary">摘要和可追溯热度。</p>
+    <div class="actions"><a class="action" href="...">查看原文</a><button class="action read-toggle" type="button">AI帮你读</button><button class="action save-toggle" type="button">收藏</button></div>
   </div>
-  <p class="summary">50–100 字摘要。</p>
-  <div class="actions">
-    <a class="link" href="..." target="_blank" rel="noopener noreferrer">查看原文</a>
-    <button class="read-toggle" type="button">AI 读创意</button>
-    <button class="save-toggle" type="button">收藏</button>
-  </div>
-  <aside class="ai-reading">
-    <!-- 点击 AI 读创意后展开 -->
-  </aside>
+  <div class="card-back"><!-- AI 读创意面板，翻面显示 --></div>
 </article>
 ```
 
 ## AI 读创意交互
 
 - AI 读创意内容默认不展示。
-- 点击 `AI 读创意` 后，在当前新闻行下方展开 `ai-reading` 面板。
+- 点击 `AI帮你读` 后，当前九宫格卡片翻面显示 `card-back` 面板。
 - 展开动效使用高度、透明度和位移过渡：
   - 收起：`max-height: 0; opacity: 0; transform: translateY(-8px);`
   - 展开：`max-height: 430px; opacity: 1; transform: translateY(0);`
@@ -89,7 +74,7 @@
 - 正文最小 14px，摘要行高不低于 1.55。
 - 原文链接使用 `target="_blank"` 和 `rel="noopener noreferrer"`。
 - 分类按钮与搜索使用原生 JavaScript 完成组合筛选；无结果时展示提示。
-- 移动端将五列结构折叠为三列：编号 / 封面 / 内容，摘要、操作和 AI 面板落到内容列下方。
+- 移动端将九宫格折叠为两列或一列，卡片内部层级保持不变。
 - 不使用外部 JavaScript、字体或 CSS 依赖；所有样式和筛选脚本内嵌，确保本地直接打开可用。
 
 ## 数据表达
