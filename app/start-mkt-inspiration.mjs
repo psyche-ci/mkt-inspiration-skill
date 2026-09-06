@@ -94,6 +94,9 @@ const cleanText = (html) => html
 
 const normalizeAiResult = (value) => {
   let candidate = value;
+  if (Array.isArray(candidate)) {
+    candidate = candidate.map((part) => part && typeof part === "object" ? (part.text || part.content || "") : part).filter(Boolean).join("\n");
+  }
   if (typeof candidate === "string") {
     const stripped = candidate.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "").trim();
     try { candidate = JSON.parse(stripped); } catch {
@@ -105,6 +108,8 @@ const normalizeAiResult = (value) => {
   for (let depth = 0; depth < 3 && candidate && typeof candidate === "object"; depth += 1) {
     if (candidate.result && typeof candidate.result === "object") candidate = candidate.result;
     else if (candidate.data && typeof candidate.data === "object") candidate = candidate.data;
+    else if (candidate.output && typeof candidate.output === "object") candidate = candidate.output;
+    else if (candidate.message && typeof candidate.message === "object") candidate = candidate.message;
     else break;
   }
   const asText = (item) => Array.isArray(item)
@@ -181,7 +186,7 @@ async function api(pathname, input) {
     const upstream = await fetchWithTimeout(`${baseUrl}/chat/completions`, {
       method: "POST",
       headers: { "content-type": "application/json", authorization: `Bearer ${apiKey}` },
-      body: JSON.stringify({ model, temperature, max_tokens: 2200, messages: [{ role: "system", content: isTest ? "只回复 OK。" : "你是营销创意分析师，严格遵守 JSON 和事实边界。" }, { role: "user", content: userPrompt }] }),
+      body: JSON.stringify({ model, temperature, max_tokens: 8192, thinking: { type: "disabled" }, messages: [{ role: "system", content: isTest ? "只回复 OK。" : "你是营销创意分析师，严格遵守 JSON 和事实边界。不要输出任何推理过程或解释，只返回最终 JSON。" }, { role: "user", content: userPrompt }] }),
     }, AI_TIMEOUT_MS);
     const payload = await upstream.json();
     if (!upstream.ok) throw new Error(payload?.error?.message || `upstream HTTP ${upstream.status}`);
@@ -195,7 +200,9 @@ async function api(pathname, input) {
     const retryPayload = await callModel(retryPrompt, 0);
     result = normalizeAiResult(retryPayload?.choices?.[0]?.message?.content || "{}");
   }
-  if (!result.insight || !result.content || !result.form) throw new Error("模型返回字段不完整（需要 insight、content、form）");
+  const hasAnyResult = Boolean(result.insight || result.content || result.form);
+  if (!hasAnyResult) throw new Error("模型没有返回可解析的解读结果，请重试");
+  result = { insight: result.insight || "原文未说明", content: result.content || "原文未说明", form: result.form || "原文未说明" };
   return { ok: true, result, model };
 }
 
@@ -235,4 +242,3 @@ const listenOnAvailablePort = (candidate, attempts = 0) => {
 };
 
 listenOnAvailablePort(port);
-
