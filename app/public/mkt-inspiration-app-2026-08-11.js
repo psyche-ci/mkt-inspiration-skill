@@ -1,6 +1,6 @@
 (()=>{
   const DATA=window.MKT_INSPIRATION_DATA||{items:[]};
-  const REPORT_DATES=DATA.reportDates||['2026-08-11','2026-08-10'];
+  const REPORT_DATES=DATA.reportDates||['2026-09-06'];
   const pageSize=9;
   let page=1,category='热点趋势',mode='today';
   const gridEl=document.getElementById('grid');
