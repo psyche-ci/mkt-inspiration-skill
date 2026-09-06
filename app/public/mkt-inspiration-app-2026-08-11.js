@@ -58,16 +58,19 @@ const interleaveHotSources=items=>{
   const dateLabel=item=>item.publishedAt?item.publishedAt.replaceAll('-','.'):`观察于 ${item.observedAt?.slice(0,10).replaceAll('-','.')||'未标日期'}`;
   // evidenceCover 是旧版文字证据图，不能作为最终封面。真实封面优先，
   // 远程图失败后由页面的 recoverCover 流程继续从详情页补图。
-  const coverMarkup=item=>(item.localCoverPath||item.coverUrl||item.cover)
+  const coverMarkup=item=>item.coverIntegrity==='remote-only'
+      ?`<div class="placeholder" style="height:100%">正在核验原文封面…</div>`
+      :(item.localCoverPath||item.coverUrl||item.cover)
       ?`<img src="${escHtml(item.localCoverPath||item.coverUrl||item.cover)}" alt="案例原文封面：${escHtml(item.title)}" loading="lazy">`
       :`<div class="placeholder" style="height:100%">原文详情页未找到可核验封面</div>`;
-  async function recoverCover(img,item){
-    if(!img||img.dataset.recovering)return;
+  async function recoverCover(target,item){
+    const box=target?.matches?.('.cover')?target:target?.closest?.('.cover');
+    if(!box||box.dataset.recovering)return;
     const sourceUrl=item.originalUrl||item.url||'';
     if(!/^https?:\/\//i.test(sourceUrl))return;
-    img.dataset.recovering='1';
-    const box=img.closest('.cover');
-    if(!box)return;
+    box.dataset.recovering='1';
+    let img=box.querySelector('img');
+    if(!img){img=document.createElement('img');img.alt=`案例原文封面：${item.title||''}`;img.loading='lazy';box.appendChild(img)}
     box.classList.add('placeholder');
     box.textContent='正在核验原文封面…';
     img.style.display='none';
@@ -166,6 +169,8 @@ const interleaveHotSources=items=>{
         const source=item.localCoverPath||item.coverUrl||item.cover||'';
         if(!source||/^data:image\/svg\+xml/i.test(source)||/evidence|placeholder|cover-fallback/i.test(source)) recoverCover(img,item);
         img.addEventListener('error',()=>recoverCover(img,item),{once:true});
+      }else if(item.coverIntegrity==='remote-only'){
+        recoverCover(card.querySelector('.cover'),item);
       }
       card.querySelector('.return-card').onclick=()=>card.classList.remove('is-reading');
       const save=card.querySelector('.save-toggle');
@@ -194,4 +199,3 @@ const interleaveHotSources=items=>{
   const defaultCategory=[...document.querySelectorAll('.filters .filter')].find(btn=>DATA.items.some(item=>item.contentType===btn.textContent.trim()&&isToday(item)))||[...document.querySelectorAll('.filters .filter')].find(btn=>btn.textContent.trim()==='热点趋势');
   if(defaultCategory)selectCategory(defaultCategory);
 })();
-
