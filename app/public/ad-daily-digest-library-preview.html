@@ -93,6 +93,7 @@
       pointer-events:auto;
     }
     .folder-card:focus-visible{outline:3px solid #111;outline-offset:3px;border-radius:12px}
+    /* 文件夹图形和文字已完整合成在主背景图中；按钮只提供点击热区，避免重复叠图 */
     .folder{display:none}
     .folder-name{display:none}
     .folder-card:nth-child(1){left:10.5%;top:34.5%;width:17.5%;height:21%}
@@ -1015,6 +1016,7 @@
       var notes = [];
       var state = loadState();
       notes = notes.concat(state.customNotes || []);
+      notes = notes.concat(loadDailySavedNotes()).filter(function(note,index,array){return array.findIndex(function(item){return item.id === note.id;}) === index;});
       var currentFolder = "occasion";
       var currentTagId = "christmas";
       var viewMode = "stream";
@@ -1055,7 +1057,39 @@
           return base;
         }catch(error){return base;}
       }
-      function saveState(){state.customNotes = notes.filter(function(note){return String(note.id).indexOf("custom-") === 0;});localStorage.setItem(STORAGE_KEY,JSON.stringify(state));}
+      function loadDailySavedNotes(){
+        var imported = [];
+        var targets = {"内容向":["content","emotion"],"形式向":["format","film"],"节点向":["occasion","christmas"],"视觉向":["visual","minimal"]};
+        for(var index = 0; index < localStorage.length; index += 1){
+          var key = localStorage.key(index) || "";
+          if(key.indexOf("mkt-inspiration-save-") !== 0) continue;
+          try{
+            var payload = JSON.parse(localStorage.getItem(key) || "null");
+            var item = payload && payload.item;
+            var folder = payload && payload.folder;
+            if(!item || !folder || !targets[folder]) continue;
+            var target = targets[folder];
+            var reading = item.reading || {};
+            var note = {
+              id:"saved-" + String(item.id || key.slice("mkt-inspiration-save-".length)),
+              title:item.title || item.name || "未命名营销创意",
+              source:item.source || "营销灵感包",
+              sourceMark:item.source || "营销灵感包",
+              image:item.localCoverPath || item.coverUrl || item.cover || item.image || "",
+              url:item.originalUrl || item.url || "#",
+              insight:reading.insight || item.insight || item.summary || "原文未说明",
+              content:reading.content || item.content || item.summary || "原文未说明",
+              form:reading.form || item.form || item.category || "原文未说明",
+              folders:{occasion:[],content:[],format:[],visual:[]},
+              savedFolder:folder
+            };
+            note.folders[target[0]] = [target[1]];
+            imported.push(note);
+          }catch(error){/* ignore malformed legacy save */}
+        }
+        return imported;
+      }
+      function saveState(){state.customNotes = notes.filter(function(note){var id=String(note.id);return id.indexOf("custom-") === 0 || id.indexOf("saved-") === 0;});localStorage.setItem(STORAGE_KEY,JSON.stringify(state));}
       function escapeHtml(value){
         return String(value).replace(/[&<>"']/g,function(char){
           return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[char];
@@ -1268,9 +1302,22 @@
         };
         if(document.getElementById("creativeImageMode").value === "upload"){
           if(!imageFile && url){
-            var knownCover = {"https://www.digitaling.com/projects/373197.html":"./today-covers/custom-digitaling-373197.jpg"}[url];
-            if(knownCover) finish(knownCover); else showToast("正在从内容网址查找封面…");
-            if(knownCover)return;
+            var knownCover = {"https://www.digitaling.com/projects/373197.html":"./today-covers/custom-digitaling-373197.jpg"}[normalizedUrl];
+            if(knownCover){finish(knownCover);return;}
+            showToast("正在从内容网址查找封面…");
+            try{
+              var coverResponse = await fetch("/api/find-cover",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({url:url})});
+              var coverPayload = await coverResponse.json();
+              var candidates = coverPayload.ok && Array.isArray(coverPayload.candidates) ? coverPayload.candidates : [];
+              for(var candidate of candidates){
+                try{
+                  var imageResponse = await fetch("/api/fetch-image",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({url:candidate})});
+                  var imagePayload = await imageResponse.json();
+                  if(imagePayload.ok && imagePayload.dataUrl){finish(imagePayload.dataUrl);return;}
+                }catch(_){/* try the next verified candidate */}
+              }
+            }catch(error){console.warn("custom cover lookup failed",error);}
+            showToast("未找到可核验封面，请切换“图片网址”或上传本地图片");
             return;
           }
           if(!imageFile){showToast("请选择一张封面图片");return;}
