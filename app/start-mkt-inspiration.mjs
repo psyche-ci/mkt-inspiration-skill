@@ -170,4 +170,23 @@ const server = http.createServer(async (req, res) => {
     if (req.method === "HEAD") res.end(); else res.end(body);
   } catch (error) { json(res, { ok: false, error: error instanceof Error ? error.message : String(error) }, 400); }
 });
-server.listen(port, "127.0.0.1", () => console.log(`MKT Inspiration running at http://127.0.0.1:${port}/mkt-inspiration-grid-preview.html`));
+
+// 端口被旧进程占用时自动顺延，避免 Skill 已生成页面却无法打开。
+const listenOnAvailablePort = (candidate, attempts = 0) => {
+  const chosen = candidate + attempts;
+  const onError = (error) => {
+    server.off("error", onError);
+    if ((error?.code === "EADDRINUSE" || error?.code === "EPERM") && attempts < 20) {
+      listenOnAvailablePort(candidate, attempts + 1);
+      return;
+    }
+    throw error;
+  };
+  server.once("error", onError);
+  server.listen(chosen, "127.0.0.1", () => {
+    server.off("error", onError);
+    console.log(`MKT Inspiration running at http://127.0.0.1:${chosen}/mkt-inspiration-grid-preview.html`);
+  });
+};
+
+listenOnAvailablePort(port);
