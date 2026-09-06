@@ -20,7 +20,7 @@ const providerBases = {
   deepseek: "https://api.deepseek.com/v1",
 };
 const FETCH_TIMEOUT_MS = 15_000;
-const AI_TIMEOUT_MS = 30_000;
+const AI_TIMEOUT_MS = 25_000;
 
 const fetchWithTimeout = async (url, options = {}, timeoutMs = FETCH_TIMEOUT_MS) => {
   const controller = new AbortController();
@@ -96,15 +96,27 @@ const normalizeAiResult = (value) => {
   let candidate = value;
   if (typeof candidate === "string") {
     const stripped = candidate.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "").trim();
-    try { candidate = JSON.parse(stripped); } catch { candidate = {}; }
+    try { candidate = JSON.parse(stripped); } catch {
+      const start = stripped.indexOf("{");
+      const end = stripped.lastIndexOf("}");
+      try { candidate = start >= 0 && end > start ? JSON.parse(stripped.slice(start, end + 1)) : {}; } catch { candidate = {}; }
+    }
   }
-  if (candidate && typeof candidate.result === "object") candidate = candidate.result;
-  const pick = (...keys) => keys.map((key) => candidate?.[key]).map((item) => Array.isArray(item) ? item.filter(Boolean).join("、") : item).find((item) => typeof item === "string" && item.trim()) || "";
+  for (let depth = 0; depth < 3 && candidate && typeof candidate === "object"; depth += 1) {
+    if (candidate.result && typeof candidate.result === "object") candidate = candidate.result;
+    else if (candidate.data && typeof candidate.data === "object") candidate = candidate.data;
+    else break;
+  }
+  const asText = (item) => Array.isArray(item)
+    ? item.map((entry) => typeof entry === "object" ? (entry.name || entry.label || entry.text || entry.value || "") : entry).filter(Boolean).join("、")
+    : item && typeof item === "object" ? String(item.name || item.label || item.text || item.value || "").trim()
+    : typeof item === "string" ? item.trim() : "";
+  const pick = (...keys) => keys.map((key) => asText(candidate?.[key])).find((item) => item) || "";
   const analysis = pick("analysis", "解读", "新闻解读", "趋势解读");
   return {
     insight: pick("insight", "创意洞察", "洞察") || analysis,
     content: pick("content", "创意内容", "内容") || analysis,
-    form: pick("form", "创意形式", "形式") || (analysis ? "原文解读" : ""),
+    form: pick("form", "formats", "creativeForm", "creative_form", "format", "创意形式", "形式", "创意类型"),
   };
 };
 
@@ -143,29 +155,43 @@ async function api(pathname, input) {
   let sourceText = "";
   let sourceFetchError = "";
   if (!isTest && /^https?:\/\//i.test(sourceUrl)) {
-    try {
-      const html = await fetchPage(sourceUrl);
-      const title = html.match(/<title[^>]*>([\s\S]*?)<\/title>/i)?.[1] || "";
-      const body = cleanText(html);
-      if (body.length >= 120) sourceText = `原文标题：${cleanText(title)}\n原文正文：${body.slice(0, 30000)}`;
-      else sourceFetchError = "原文正文不足";
-    } catch (error) {
-      sourceFetchError = error instanceof Error ? error.message : String(error);
+    if (supplied.length >= 120) {
+      // The upload page has already fetched and stripped this URL's HTML.
+      // Re-fetching it here doubled latency and could hang on anti-bot pages.
+      sourceText = `原文正文（页面已核验）：${supplied.slice(0, 30000)}`;
+    } else {
+      try {
+        const html = await fetchPage(sourceUrl);
+        const title = html.match(/<title[^>]*>([\s\S]*?)<\/title>/i)?.[1] || "";
+        const body = cleanText(html);
+        if (body.length >= 120) sourceText = `原文标题：${cleanText(title)}\n原文正文：${body.slice(0, 30000)}`;
+        else sourceFetchError = "原文正文不足";
+      } catch (error) {
+        sourceFetchError = error instanceof Error ? error.message : String(error);
+      }
     }
   }
   if (!isTest && /^https?:\/\//i.test(sourceUrl) && !sourceText && supplied.length < 120) throw new Error(`原文页面无法读取或正文不足，且卡片核验信息不足：${sourceFetchError || "请补充正文"}`);
   if (!isTest && /^https?:\/\//i.test(sourceUrl) && !sourceText) sourceText = `原文页面暂不可读；以下为已核验卡片信息，请仅据此解读，不要补写未提供事实。`;
   const prompt = `${sourceText ? sourceText + "\n\n" : ""}卡片已核验信息：\n${supplied}\n\n请只依据以上原文和已核验信息输出 JSON，字段必须是 insight、content、form。insight 和 content 各写 2-3 句具体、连贯的话，控制在卡片显示不超过三行，讲清用户问题、核心策略、实际执行和品牌如何进入，不要堆砌背景。form 只返回 2-5 个与原文对应的具体执行关键词，用“、”分隔，例如“事件营销、户外广告”或“TVC、平面海报”，不要写解释长句，也禁止使用“品牌内容”“营销活动”等泛化词。禁止随机生成、把导航词或标签当正文；原文不足时明确写“原文未说明”。只返回 JSON，不要 Markdown。`;
-  const upstream = await fetchWithTimeout(`${baseUrl}/chat/completions`, {
-    method: "POST",
-    headers: { "content-type": "application/json", authorization: `Bearer ${apiKey}` },
-    body: JSON.stringify({ model, temperature: 0.3, max_tokens: 2200, messages: [{ role: "system", content: isTest ? "只回复 OK。" : "你是营销创意分析师，严格遵守 JSON 和事实边界。" }, { role: "user", content: prompt }] }),
-  }, AI_TIMEOUT_MS);
-  const payload = await upstream.json();
-  if (!upstream.ok) throw new Error(payload?.error?.message || `upstream HTTP ${upstream.status}`);
+  const callModel = async (userPrompt, temperature) => {
+    const upstream = await fetchWithTimeout(`${baseUrl}/chat/completions`, {
+      method: "POST",
+      headers: { "content-type": "application/json", authorization: `Bearer ${apiKey}` },
+      body: JSON.stringify({ model, temperature, max_tokens: 2200, messages: [{ role: "system", content: isTest ? "只回复 OK。" : "你是营销创意分析师，严格遵守 JSON 和事实边界。" }, { role: "user", content: userPrompt }] }),
+    }, AI_TIMEOUT_MS);
+    const payload = await upstream.json();
+    if (!upstream.ok) throw new Error(payload?.error?.message || `upstream HTTP ${upstream.status}`);
+    return payload;
+  };
+  const payload = await callModel(prompt, 0.3);
   if (isTest) return { ok: true, model };
-  const text = payload?.choices?.[0]?.message?.content || "{}";
-  const result = normalizeAiResult(text);
+  let result = normalizeAiResult(payload?.choices?.[0]?.message?.content || "{}");
+  if (!result.insight || !result.content || !result.form) {
+    const retryPrompt = `${prompt}\n\n上一次输出无法解析或缺少字段。请重新输出，必须是单个合法 JSON 对象，且 insight、content、form 三个字段都必须存在并且是非空字符串；form 用“、”分隔 2-5 个具体执行形式。不要 Markdown、不要解释。`;
+    const retryPayload = await callModel(retryPrompt, 0);
+    result = normalizeAiResult(retryPayload?.choices?.[0]?.message?.content || "{}");
+  }
   if (!result.insight || !result.content || !result.form) throw new Error("模型返回字段不完整（需要 insight、content、form）");
   return { ok: true, result, model };
 }
