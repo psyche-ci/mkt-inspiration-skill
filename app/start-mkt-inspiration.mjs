@@ -81,9 +81,49 @@ const imageCandidates = (html, pageUrl) => {
 
 const fetchPage = async (url) => {
   if (!/^https?:\/\//i.test(url)) throw new Error("valid http(s) URL required");
-  const response = await fetchWithTimeout(url, { headers: { "user-agent": "Mozilla/5.0 MKT-Inspiration/1.0", accept: "text/html,application/xhtml+xml" } });
-  if (!response.ok) throw new Error(`source page HTTP ${response.status}`);
-  return response.text();
+  const profiles = [
+    { "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 Chrome/128.0 Safari/537.36", accept: "text/html,application/xhtml+xml", "accept-language": "zh-CN,zh;q=0.9,en;q=0.8" },
+    { "user-agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) AppleWebKit/605.1.15 Version/17.5 Mobile/15E148 Safari/604.1", accept: "text/html,application/xhtml+xml", "accept-language": "zh-CN,zh;q=0.9,en;q=0.8" },
+    { "user-agent": "Googlebot/2.1 (+http://www.google.com/bot.html)", accept: "text/html,application/xhtml+xml" },
+  ];
+  let lastError = null;
+  for (const headers of profiles) {
+    try {
+      const response = await fetchWithTimeout(url, { headers });
+      if (response.ok) return response.text();
+      lastError = new Error(`source page HTTP ${response.status}`);
+    } catch (error) {
+      lastError = error;
+    }
+  }
+  throw lastError || new Error("source page unavailable");
+};
+
+const fetchImageData = async (url, referer = "") => {
+  if (!/^https?:\/\//i.test(url)) throw new Error("valid image URL required");
+  const profiles = [
+    { "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 Chrome/128.0 Safari/537.36", accept: "image/avif,image/webp,image/apng,image/*,*/*;q=0.8" },
+    { "user-agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) AppleWebKit/605.1.15 Version/17.5 Mobile/15E148 Safari/604.1", accept: "image/avif,image/webp,image/apng,image/*,*/*;q=0.8" },
+  ];
+  let lastError = null;
+  for (const headers of profiles) {
+    if (referer) headers.referer = referer;
+    try {
+      const response = await fetchWithTimeout(url, { headers }, 20_000);
+      if (!response.ok) {
+        lastError = new Error(`image HTTP ${response.status}`);
+        continue;
+      }
+      const bytes = Buffer.from(await response.arrayBuffer());
+      if (bytes.length > 12_000_000) throw new Error("image too large");
+      const contentType = response.headers.get("content-type") || "image/jpeg";
+      if (!/^image\//i.test(contentType)) throw new Error("source did not return an image");
+      return `data:${contentType};base64,${bytes.toString("base64")}`;
+    } catch (error) {
+      lastError = error;
+    }
+  }
+  throw lastError || new Error("image unavailable");
 };
 
 const cleanText = (html) => html
@@ -138,14 +178,25 @@ async function api(pathname, input) {
     if (!candidates.length) throw new Error("no verifiable image found on source page");
     return { ok: true, url, candidates };
   }
+  if (pathname === "/api/fetch-cover") {
+    const url = String(input.url || input.sourceUrl || "").trim();
+    const html = await fetchPage(url);
+    const candidates = imageCandidates(html, url);
+    if (!candidates.length) throw new Error("no verifiable image found on source page");
+    let lastError = null;
+    for (const candidate of candidates) {
+      try {
+        const dataUrl = await fetchImageData(candidate, url);
+        return { ok: true, url, sourceUrl: candidate, dataUrl };
+      } catch (error) {
+        lastError = error;
+      }
+    }
+    throw new Error(`source page images could not be downloaded${lastError ? `: ${lastError.message}` : ""}`);
+  }
   if (pathname === "/api/fetch-image") {
     const url = String(input.url || "").trim();
-    if (!/^https?:\/\//i.test(url)) throw new Error("valid image URL required");
-    const response = await fetchWithTimeout(url, { headers: { "user-agent": "Mozilla/5.0 MKT-Inspiration/1.0", accept: "image/avif,image/webp,image/apng,image/*,*/*;q=0.8" } }, 20_000);
-    if (!response.ok) throw new Error(`image HTTP ${response.status}`);
-    const bytes = Buffer.from(await response.arrayBuffer());
-    if (bytes.length > 12_000_000) throw new Error("image too large");
-    return { ok: true, dataUrl: `data:${response.headers.get("content-type") || "image/jpeg"};base64,${bytes.toString("base64")}` };
+    return { ok: true, dataUrl: await fetchImageData(url, String(input.referer || "").trim()) };
   }
   if (pathname !== "/api/ai-read") throw new Error("Not found");
   const apiKey = String(input.apiKey || "").trim();
@@ -202,7 +253,11 @@ async function api(pathname, input) {
   }
   const hasAnyResult = Boolean(result.insight || result.content || result.form);
   if (!hasAnyResult) throw new Error("模型没有返回可解析的解读结果，请重试");
-  result = { insight: result.insight || "原文未说明", content: result.content || "原文未说明", form: result.form || "原文未说明" };
+  result = {
+    insight: result.insight || "原文未说明",
+    content: result.content || "原文未说明",
+    form: result.form || "原文未说明",
+  };
   return { ok: true, result, model };
 }
 
