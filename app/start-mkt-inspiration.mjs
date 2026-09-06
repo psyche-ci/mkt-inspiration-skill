@@ -181,7 +181,7 @@ async function api(pathname, input) {
   }
   if (!isTest && /^https?:\/\//i.test(sourceUrl) && !sourceText && supplied.length < 120) throw new Error(`原文页面无法读取或正文不足，且卡片核验信息不足：${sourceFetchError || "请补充正文"}`);
   if (!isTest && /^https?:\/\//i.test(sourceUrl) && !sourceText) sourceText = `原文页面暂不可读；以下为已核验卡片信息，请仅据此解读，不要补写未提供事实。`;
-  const prompt = `${sourceText ? sourceText + "\n\n" : ""}卡片已核验信息：\n${supplied}\n\n请只依据以上原文和已核验信息输出 JSON，字段必须是 insight、content、form。insight 和 content 各写 2-3 句具体、连贯的话，控制在卡片显示不超过三行，讲清用户问题、核心策略、实际执行和品牌如何进入，不要堆砌背景。form 只返回 2-5 个与原文对应的具体执行关键词，用“、”分隔，例如“事件营销、户外广告”或“TVC、平面海报”，不要写解释长句，也禁止使用“品牌内容”“营销活动”等泛化词。禁止随机生成、把导航词或标签当正文；原文不足时明确写“原文未说明”。只返回 JSON，不要 Markdown。`;
+  const prompt = `${sourceText ? sourceText + "\n\n" : ""}卡片已核验信息：\n${supplied}\n\n请只依据以上原文和已核验信息输出 JSON，字段必须是 insight、content、form。insight 和 content 各写 2-3 句具体、连贯的完整句子，必须完整输出，不要用省略号或按页面行数截断，讲清用户问题、核心策略、实际执行和品牌如何进入，不要堆砌背景。form 只返回 2-5 个与原文对应的具体执行关键词，用“、”分隔，例如“事件营销、户外广告”或“TVC、平面海报”，不要写解释长句，也禁止使用“品牌内容”“营销活动”等泛化词。禁止随机生成、把导航词或标签当正文；原文不足时明确写“原文未说明”。只返回 JSON，不要 Markdown。`;
   const callModel = async (userPrompt, temperature) => {
     const upstream = await fetchWithTimeout(`${baseUrl}/chat/completions`, {
       method: "POST",
