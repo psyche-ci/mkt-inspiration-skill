@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>营销灵感包｜九宫格首页预览</title>
+  <title>营销灵感包-2026年9月6日</title>
   <style>
     @font-face{font-family:Karrik;src:url("./preview-assets/fonts/Karrik-Regular.woff2") format("woff2");font-display:swap}
     @font-face{font-family:HelveticaLocal;src:url("./preview-assets/fonts/Helvetica.ttf") format("truetype");font-weight:100 900;font-style:normal;font-display:swap}
@@ -16,11 +16,10 @@
     .switch{display:flex;justify-content:center;gap:26px;padding:0;font-size:13px;font-weight:700}
     .switch a{color:inherit;text-decoration:none}
     .switch a:first-child{border-bottom:1px solid var(--ink);padding-bottom:4px}
-    .hero{padding:26px 0 30px;text-align:center}
+    .hero{padding:26px 0 20px;text-align:center}
+    .hero-meta{margin:26px auto 0;max-width:760px;color:#666;font:11px/1.65 "PingFang SC","Microsoft YaHei",sans-serif}
     .hero-title{margin:0;display:grid;justify-items:center;gap:20px;font-family:Karrik,sans-serif;font-size:clamp(64px,9vw,128px);line-height:.78;letter-spacing:-.095em;font-weight:400;white-space:nowrap}
     .hero-title span{font:inherit;line-height:inherit;letter-spacing:inherit}
-    .usage-guide{border-top:1px solid #111;border-bottom:1px solid #111;padding:12px 0 11px;margin:0 0 12px;font-size:11px;line-height:1.6;color:#444}
-    .usage-guide strong{color:#111;margin-right:6px}
     .filters{padding:14px 0 8px;display:flex;align-items:center;justify-content:flex-end;gap:7px;flex-wrap:wrap}
     .time-filters{padding:0 0 17px;display:flex;align-items:center;justify-content:flex-start;gap:7px}
     .filter{border:1px solid #b5b5b5;border-radius:999px;padding:5px 10px 4px;font-size:10px;line-height:1;font-weight:700;background:#fff}
@@ -52,6 +51,7 @@
     .folder-option,.folder-picker-cancel{border:1px solid #111;border-radius:999px;background:#fff;color:#111;padding:10px 14px;font:600 14px/1 "HelveticaLocal","PingFang SC",sans-serif;cursor:pointer}
     .folder-option:hover,.folder-option:focus-visible{background:#111;color:#fff}
     .folder-picker-cancel{display:block;margin:18px 0 0 auto;padding:8px 16px;font-size:12px}
+    .coverage{margin-top:28px;padding-top:18px;border-top:1px solid #111}.coverage h2{margin:0 0 12px;font-size:18px}.coverage-grid{display:grid;grid-template-columns:repeat(5,1fr);border-top:1px solid #aaa;border-left:1px solid #aaa}.coverage-item{padding:12px;border-right:1px solid #aaa;border-bottom:1px solid #aaa;font:10px/1.55 "PingFang SC","Microsoft YaHei",sans-serif}.coverage-item strong,.coverage-item b{display:block;margin-bottom:4px}.coverage-item.warn{color:#8a4300}.coverage-note{color:#666;font:10px/1.6 "PingFang SC","Microsoft YaHei",sans-serif}
     @media(max-width:760px){.page{width:calc(100% - 28px);padding-top:18px}.hero-title{font-size:48px;gap:14px}.switch{justify-content:flex-start;gap:18px}.grid{grid-template-columns:1fr 1fr}.card{min-height:340px;padding:13px}.card h2{font-size:15px}.summary{font-size:10px}.filter-label{width:100%}}
   </style>
   <script>
@@ -75,12 +75,12 @@
 <body>
   <main class="page">
     <header class="masthead"><strong class="brand">灵感乍现</strong><nav class="switch" aria-label="内容切换"><a href="mkt-inspiration-grid-preview.html">今日快讯</a><a href="ad-daily-digest-library-preview.html">营销灵感包</a></nav><span class="api-key-wrap"><span class="api-key-status" id="apiKeyStatus" aria-live="polite">未设置 API Key</span><button class="api-key" type="button">设置 API KEY</button></span></header>
-    <section class="hero" aria-label="首页标题"><h1 class="hero-title"><span>MKT</span><span>INSPIRATION</span></h1></section>
-    <section class="usage-guide" aria-label="使用提示"><strong>使用提示</strong>输入“抓取今日营销案例 / AI新闻日报 / 热点趋势”可更新对应栏目；输入“抓取近期热门”更新热门内容，不注明栏目则三个栏目一起抓取（耗时较长）。使用“AI帮你读”和“自定义上传创意”前，请先设置 DeepSeek API Key；看到喜欢的创意可点击“收藏”，加入四类灵感包。</section>
+    <section class="hero" aria-label="首页标题"><h1 class="hero-title"><span>MKT</span><span>INSPIRATION</span></h1><p class="hero-meta">营销灵感包-2026年9月6日<br>生成时间：2026-09-06 13:35（Asia/Shanghai） · 时间窗：2026-09-06 00:00–23:59 · 热点趋势收录 12 条<br>今日观察：AI 产品正从“生成答案”转向接管实验、调试、审查与持续学习。</p></section>
     <nav class="filters" aria-label="内容来源类型筛选"><button class="filter" type="button">热点趋势</button><button class="filter" type="button">AI新闻日报</button><button class="filter" type="button">营销案例</button></nav>
     <nav class="time-filters" aria-label="时间与热度筛选" hidden><button class="filter time-filter active" type="button" data-mode="today">今日要闻</button><button class="filter time-filter" type="button" data-mode="hot">近期热门</button></nav>
     <section class="grid" id="grid" aria-label="营销灵感列表" hidden></section>
     <nav class="pagination" aria-label="内容分页" hidden><button class="page-button" id="prevPage" type="button">上一页</button><span class="page-status" id="pageStatus"></span><button class="page-button" id="nextPage" type="button">下一页</button></nav>
+    <section class="coverage" aria-label="来源覆盖状态"><h2>热点趋势来源覆盖</h2><div class="coverage-grid"><div class="coverage-item warn"><strong>TikTok Creative Center</strong><b>页面异常待补核验</b>趋势页可访问，但未返回可读取的当日条目、日期与指标。</div><div class="coverage-item warn"><strong>Pinterest Trends</strong><b>页面异常待补核验</b>趋势页已检查，未返回可核验的当日条目与日期。</div><div class="coverage-item"><strong>Product Hunt</strong><b>已收录 12 条</b>当日榜前 12 条完成列表核验，并按候选打开详情页补读。</div><div class="coverage-item"><strong>Meta Newsroom · Instagram</strong><b>已检查但无当日更新</b>Recent News 最新可见 Instagram 内容早于 9 月 6 日。</div><div class="coverage-item"><strong>Later · Reels Trends</strong><b>已检查但无当日更新</b>页面最近更新于 2026-09-04。</div></div><p class="coverage-note">仅抓取 2026-09-06 当日内容；未回补前一日，未更新 AI 新闻日报、营销案例或“近期热门”。Product Hunt 分数为 13:35 左右的公开快照，会随投票继续变化。</p></section>
   </main>
   <dialog id="apiKeyDialog"><form method="dialog" style="min-width:320px;padding:22px;border:1px solid #111"><h3 style="margin:0 0 14px">设置 API KEY</h3><p style="font-size:12px;color:#666;line-height:1.5">当前网页应用仅核对并启用 DeepSeek。Key 只保存在本机浏览器，不会写入 Skill 或页面文件。</p><select id="apiProviderInput" style="width:100%;padding:10px;border:1px solid #aaa"><option value="deepseek">DeepSeek</option></select><input id="apiKeyInput" type="password" placeholder="粘贴你的 DeepSeek API Key" autocomplete="off" style="width:100%;padding:10px;border:1px solid #aaa;margin-top:8px"><input id="apiModelInput" type="text" value="deepseek-v4-flash" placeholder="模型名" style="width:100%;padding:10px;border:1px solid #aaa;margin-top:8px"><input id="apiBaseUrlInput" type="url" value="https://api.deepseek.com/v1" aria-label="DeepSeek 接口地址" style="width:100%;padding:10px;border:1px solid #aaa;margin-top:8px;display:none"><div style="display:flex;justify-content:flex-end;gap:8px;margin-top:14px"><button class="action" value="cancel">取消</button><button class="action" id="saveApiKeyButton" value="default">保存</button></div></form></dialog>
   <script type="application/json" id="legacy-card-script">
@@ -207,11 +207,12 @@
   <script src="./mkt-current-ads-2026-08-14.js?v=20260819-4"></script>
   <script src="./mkt-current-ads-2026-08-17.js?v=20260819-4"></script>
   <script src="./mkt-current-ads-2026-08-19.js?v=20260819-1"></script>
+  <script src="./mkt-current-hotspots-2026-09-06.js?v=20260906-1"></script>
   <script src="./mkt-inspiration-app-2026-08-11.js?v=20260819-7"></script>
   <script>
   (()=>{
     const categories=['热点趋势','AI新闻日报','营销案例'];
-    const hasToday=category=>typeof VERIFIED_ITEMS!=='undefined'&&VERIFIED_ITEMS.some(item=>(item.contentType||'营销案例')===category&&item.date==='2026-08-17');
+    const hasToday=category=>typeof window.MKT_INSPIRATION_DATA!=='undefined'&&window.MKT_INSPIRATION_DATA.items.some(item=>item.contentType===category&&(item.publishedAt||item.observedAt?.slice(0,10))==='2026-09-06');
     const fallback=()=>categories.find(hasToday);
     const activate=category=>{const button=[...document.querySelectorAll('.filters > .filter')].find(item=>item.textContent.trim()===category);if(button)button.click();};
     document.addEventListener('click',event=>{const button=event.target.closest('.filters > .filter');if(!button)return;const requested=button.textContent.trim();if(!hasToday(requested)){const target=fallback();if(target){event.preventDefault();event.stopImmediatePropagation();activate(target);}}},true);
@@ -228,10 +229,12 @@
     const sync=()=>{const preset=presets[provider.value]||presets.custom;const custom=provider.value==='custom';base.style.display=custom?'block':'none';if(!custom){base.value=preset[0];model.value=preset[1]}};
     provider.addEventListener('change',sync);
     button.addEventListener('click',()=>{const cfg=read();provider.value='deepseek';model.value=cfg?.model||presets.deepseek[1];base.value=presets.deepseek[0];key.value='';sync();dialog.showModal()});
-    form.addEventListener('submit',event=>{event.preventDefault();const old=read();const apiKey=key.value.trim()||old?.apiKey||'';const preset=presets[provider.value]||presets.custom;const baseUrl=provider.value==='custom'?base.value.trim():preset[0];if(!apiKey||!baseUrl){alert('请填写有效的 API Key 和接口地址');return}localStorage.setItem('mkt-ai-config',JSON.stringify({provider:provider.value,apiKey,model:model.value.trim()||preset[1],baseUrl}));render();dialog.close()});
+    form.addEventListener('submit',async event=>{event.preventDefault();const old=read();const apiKey=key.value.trim()||old?.apiKey||'';const preset=presets[provider.value]||presets.custom;const baseUrl=provider.value==='custom'?base.value.trim():preset[0];const selectedModel=model.value.trim()||preset[1];if(!apiKey||!baseUrl){alert('请填写有效的 API Key 和接口地址');return}save.disabled=true;save.textContent='测试中…';try{const response=await fetch('/api/ai-read',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({provider:provider.value,apiKey,baseUrl,model:selectedModel,test:true})});const payload=await response.json();if(!response.ok||!payload.ok)throw new Error(payload.error||'接口测试失败');localStorage.setItem('mkt-ai-config',JSON.stringify({provider:provider.value,apiKey,model:selectedModel,baseUrl}));render();dialog.close()}catch(error){alert('API Key 测试失败：'+(error instanceof Error?error.message:String(error)))}finally{save.disabled=false;save.textContent='保存'}});
     document.addEventListener('click',async event=>{
       const trigger=event.target.closest('.read-toggle');if(!trigger)return;
-      const card=trigger.closest('.card');const cfg=read();const data=window.MKT_INSPIRATION_DATA?.items||[];const item=data.find(entry=>entry.id===card?.dataset.itemId)||({id:card?.dataset.itemId,contentType:'营销案例',title:card?.querySelector('.card-front h2')?.textContent||'',source:card?.querySelector('.card-top span')?.textContent?.replace(/^来源：/,'')||'',originalUrl:card?.dataset.sourceUrl||'',summary:card?.querySelector('.card-front .summary')?.textContent||'',evidenceText:card?.querySelector('.card-front .evidence')?.textContent||''});const sourceUrl=item.originalUrl||item.url||card?.dataset.sourceUrl||'';if(!card||!item||!sourceUrl)return;
+      const card=trigger.closest('.card');const cfg=read();if(!card)return;
+      if(trigger.dataset.aiReady==='1'){card.classList.add('is-reading');return;}
+      const data=window.MKT_INSPIRATION_DATA?.items||[];const item=data.find(entry=>entry.id===card.dataset.itemId)||({id:card.dataset.itemId,contentType:'营销案例',title:card.querySelector('.card-front h2')?.textContent||'',source:card.querySelector('.card-top span')?.textContent?.replace(/^来源：/,'')||'',originalUrl:card.dataset.sourceUrl||'',summary:card.querySelector('.card-front .summary')?.textContent||'',evidenceText:card.querySelector('.card-front .evidence')?.textContent||''});const sourceUrl=item.originalUrl||item.url||card.dataset.sourceUrl||'';if(!item||!sourceUrl)return;
       card.classList.add('is-reading');
       const fields=[...card.querySelectorAll('[data-ai-field]')];
       const fail=message=>{fields.forEach((node,index)=>node.textContent=index===0?`读取失败：${message}`:'未生成。');trigger.disabled=false;trigger.textContent='重新读取'};
@@ -244,7 +247,7 @@
         const result=payload.result||{};const values=item.contentType==='营销案例'?[result.insight,result.content,result.form]:[result.content||result.insight];
         if(values.some(value=>!String(value||'').trim()))throw new Error('模型返回字段不完整');
         if(item.contentType==='营销案例'&&(String(result.insight).length<30||String(result.content).length<30||String(result.form).length<2||/品牌内容|营销活动/.test(String(result.form))))throw new Error('模型返回不完整或创意形式不具体，请重新读取');
-        fields.forEach((node,index)=>node.textContent=values[index]||'原文未说明');trigger.textContent='AI已解读';
+        fields.forEach((node,index)=>node.textContent=values[index]||'原文未说明');trigger.disabled=false;trigger.dataset.aiReady='1';trigger.textContent='AI已解读';
       }catch(error){fail(error instanceof Error?error.message:String(error))}
     });
     render();sync();
