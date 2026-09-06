@@ -145,12 +145,15 @@ async function api(pathname, input) {
   if (pathname !== "/api/ai-read") throw new Error("Not found");
   const apiKey = String(input.apiKey || "").trim();
   const provider = "deepseek";
-  const baseUrl = String(input.baseUrl || providerBases.deepseek).replace(/\/$/, "");
+  // Never let browser input choose the upstream URL: forwarding the user's key
+  // to an arbitrary baseUrl would turn this local helper into an open proxy.
+  const baseUrl = providerBases.deepseek;
   const model = String(input.model || "deepseek-v4-flash");
   const sourceUrl = String(input.sourceUrl || "").trim();
   const supplied = String(input.content || "").trim();
   const isTest = input.test === true;
   if (!apiKey) throw new Error("apiKey is required");
+  if (!/^[\x00-\x7F]+$/.test(apiKey)) throw new Error("apiKey must contain only ASCII token characters");
   if (!isTest && !supplied) throw new Error("content is required");
   let sourceText = "";
   let sourceFetchError = "";
@@ -232,3 +235,4 @@ const listenOnAvailablePort = (candidate, attempts = 0) => {
 };
 
 listenOnAvailablePort(port);
+
