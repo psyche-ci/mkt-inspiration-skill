@@ -89,6 +89,25 @@ const interleaveHotSources=items=>{
   }
   const generalAnalysis=item=>item.reading?.analysis||[item.reading?.insight,item.reading?.content,item.reading?.form].filter(Boolean).join(' ');
   const LIBRARY_KEY='mkt-inspiration-library-v2';
+  const DEFAULT_TAGS={
+    occasion:[{id:'christmas',name:'圣诞节',color:'#868d9d'},{id:'april-fools',name:'愚人节',color:'#c7b8a1'},{id:'national-day',name:'国庆节',color:'#a3b7a0'}],
+    content:[{id:'emotion',name:'情绪叙事',color:'#efd3e6'},{id:'culture',name:'文化洞察',color:'#d7e7f5'},{id:'painpoint',name:'用户痛点',color:'#eadfbd'}],
+    format:[{id:'film',name:'品牌短片',color:'#d7d2f0'},{id:'event',name:'线下事件',color:'#efd9bd'},{id:'product',name:'产品创新',color:'#cde8dc'}],
+    visual:[{id:'minimal',name:'极简数字',color:'#e5e5df'},{id:'surreal',name:'超现实',color:'#e6cfed'},{id:'handmade',name:'手工质感',color:'#f0d4bf'}]
+  };
+  const mergeTags=existing=>{
+    const merged=JSON.parse(JSON.stringify(DEFAULT_TAGS));
+    Object.keys(merged).forEach(folder=>{
+      const incoming=Array.isArray(existing?.[folder])?existing[folder]:[];
+      incoming.forEach(tag=>{
+        if(!tag||!tag.id)return;
+        const index=merged[folder].findIndex(item=>item.id===tag.id);
+        if(index===-1)merged[folder].push(tag);else merged[folder][index]=Object.assign({},merged[folder][index],tag);
+      });
+    });
+    return merged;
+  };
+  const isSavedToLibrary=itemId=>{try{const saved=JSON.parse(localStorage.getItem(LIBRARY_KEY)||'null')||{};return Array.isArray(saved.customNotes)&&saved.customNotes.some(note=>note.id==='saved-'+itemId)}catch(_){return false}};
   const FOLDER_TARGETS={
     '内容向':['content','emotion'],
     '形式向':['format','film'],
@@ -98,7 +117,7 @@ const interleaveHotSources=items=>{
   const saveToLibrary=(item,folder)=>{
     try{
       const saved=JSON.parse(localStorage.getItem(LIBRARY_KEY)||'null')||{};
-      saved.tags=saved.tags||{};
+      saved.tags=mergeTags(saved.tags);
       saved.personalNotes=saved.personalNotes||{};
       saved.links=saved.links||{};
       saved.customNotes=Array.isArray(saved.customNotes)?saved.customNotes:[];
@@ -150,8 +169,8 @@ const interleaveHotSources=items=>{
       }
       card.querySelector('.return-card').onclick=()=>card.classList.remove('is-reading');
       const save=card.querySelector('.save-toggle');
-      save.onclick=async()=>{const selected=await window.chooseInspirationFolder();if(!selected)return;localStorage.setItem(`mkt-inspiration-save-${item.id}`,JSON.stringify({folder:selected,item}));saveToLibrary(item,selected);save.textContent=`已收藏 · ${selected}`};
-      const saved=localStorage.getItem(`mkt-inspiration-save-${item.id}`);if(saved){try{save.textContent=`已收藏 · ${JSON.parse(saved).folder}`}catch{}}
+      save.onclick=async()=>{const selected=await window.chooseInspirationFolder();if(!selected)return;saveToLibrary(item,selected);save.textContent=`已收藏 · ${selected}`};
+      if(isSavedToLibrary(item.id)){save.textContent='已收藏'}
     });
     statusEl.textContent=`${page} / ${pages} · 共 ${items.length} 条`;
     prevEl.disabled=page<=1;nextEl.disabled=page>=pages;
