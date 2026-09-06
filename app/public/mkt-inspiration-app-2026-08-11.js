@@ -194,3 +194,4 @@ const interleaveHotSources=items=>{
   const defaultCategory=[...document.querySelectorAll('.filters .filter')].find(btn=>DATA.items.some(item=>item.contentType===btn.textContent.trim()&&isToday(item)))||[...document.querySelectorAll('.filters .filter')].find(btn=>btn.textContent.trim()==='热点趋势');
   if(defaultCategory)selectCategory(defaultCategory);
 })();
+
