@@ -263,6 +263,9 @@
       border-bottom:1px solid var(--line);
       scroll-margin-top:20px;
     }
+    .note-card[draggable="true"]{cursor:grab}
+    .note-card.dragging{opacity:.45;cursor:grabbing}
+    .tag-tab.drop-target{outline:3px dashed #111;outline-offset:-4px;filter:brightness(.92)}
     .note-card:last-child{border-bottom:0}
     .source-column{
       display:flex;
@@ -912,7 +915,7 @@
       </header>
 
       <div class="notes-toolbar">
-        <div><strong id="noteCount">0 条收藏笔记</strong> <span class="hint">图片来自原收藏内容，右侧为 AI 帮你读与个人笔记</span></div>
+        <div><strong id="noteCount">0 条收藏笔记</strong> <span class="hint">图片来自原收藏内容；拖拽卡片到左侧标签即可重新分类</span></div>
         <button class="pill active" type="button" id="addCreativeButton">上传创意</button>
         <div id="pageStatus">连续浏览</div>
       </div>
@@ -1146,7 +1149,7 @@
       function renderTags(){
         var tags = getTags();
         tagList.innerHTML = tags.map(function(tag){
-          return '<button class="tag-tab' + (tag.id === currentTagId ? ' active' : '') + '" style="--tag-color:' + escapeHtml(tag.color) + '" type="button" data-tag="' + escapeHtml(tag.id) + '" title="' + escapeHtml(tag.name) + '"><span>' + escapeHtml(tag.name) + '</span></button>';
+          return '<button class="tag-tab' + (tag.id === currentTagId ? ' active' : '') + '" style="--tag-color:' + escapeHtml(tag.color) + '" type="button" data-tag="' + escapeHtml(tag.id) + '" title="拖拽卡片到“' + escapeHtml(tag.name) + '”进行分类"><span>' + escapeHtml(tag.name) + '</span></button>';
         }).join("");
       }
       function noteMarkup(note,index){
@@ -1157,7 +1160,7 @@
         var sourceClass = /数英|digitaling/i.test(rawSource) ? "数英网" : /socialbeta/i.test(rawSource) ? "socialbeta" : rawSource;
         var formText = note.form || "";
         if(!formText || /品牌内容|营销活动|综合营销/.test(formText)){var formSource=(note.title||"")+" "+(note.content||"")+" "+(note.insight||"");formText=/TVC|电视广告|影片|短片/.test(formSource)?"TVC":/病毒|刷屏|社交裂变/.test(formSource)?"病毒广告":/快闪|线下|现场|展览/.test(formSource)?"线下快闪":/户外|广告牌|楼宇|大屏/.test(formSource)?"户外广告":/海报|平面|视觉/.test(formSource)?"平面海报":/包装|礼盒/.test(formSource)?"包装设计":"社交互动";}
-        return '<article class="note-card" id="note-' + escapeHtml(note.id) + '">' +
+        return '<article class="note-card" id="note-' + escapeHtml(note.id) + '" draggable="true" data-note-id="' + escapeHtml(note.id) + '" title="拖拽到左侧标签重新分类">' +
           '<div class="source-column">' +
             '<div class="source-logo" title="' + escapeHtml(note.source) + '">' + escapeHtml(sourceClass) + '</div>' +
           '</div>' +
@@ -1199,6 +1202,17 @@
         document.querySelectorAll("[data-view]").forEach(function(button){
           button.classList.toggle("active",button.dataset.view === viewMode);
         });
+      }
+      function moveNoteToTag(noteId, tagId){
+        var note = notes.find(function(item){return item.id === noteId;});
+        if(!note || !tagId){return;}
+        note.folders = note.folders || {occasion:[],content:[],format:[],visual:[]};
+        note.folders[currentFolder] = [tagId];
+        saveState();
+        currentTagId = tagId;
+        currentPage = 1;
+        renderAll();
+        showToast("已移动到“" + (getActiveTag() ? getActiveTag().name : "新标签") + "”");
       }
       function openTagDialog(mode){
         var active = getActiveTag();
@@ -1369,18 +1383,9 @@
             progressStage = "查找封面";
             showToast("AI 解读完成，正在查找封面…",0);
             try{
-              var coverRequest = await fetchJsonWithTimeout("/api/find-cover",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({url:url})},30000);
-              var coverResponse = coverRequest.response;
+              var coverRequest = await fetchJsonWithTimeout("/api/fetch-cover",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({url:url,sourceUrl:url})},70000);
               var coverPayload = coverRequest.payload;
-              var candidates = coverPayload.ok && Array.isArray(coverPayload.candidates) ? coverPayload.candidates.slice(0,4) : [];
-              for(var candidate of candidates){
-                try{
-                  var imageRequest = await fetchJsonWithTimeout("/api/fetch-image",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({url:candidate})},12000);
-                  var imageResponse = imageRequest.response;
-                  var imagePayload = imageRequest.payload;
-                  if(imagePayload.ok && imagePayload.dataUrl){await finish(imagePayload.dataUrl);return;}
-                }catch(_){/* try the next verified candidate */}
-              }
+              if(coverRequest.response.ok && coverPayload.ok && coverPayload.dataUrl){await finish(coverPayload.dataUrl);return;}
             }catch(error){console.warn("custom cover lookup failed",error);}
             showToast("未找到可核验封面，请切换“图片网址”或上传本地图片");
             return;
@@ -1474,6 +1479,37 @@
         currentPage = 1;
         renderAll();
         window.scrollTo({top:0,behavior:"smooth"});
+      });
+      noteStream.addEventListener("dragstart",function(event){
+        var card = event.target.closest(".note-card[data-note-id]");
+        if(!card || !event.dataTransfer){return;}
+        event.dataTransfer.effectAllowed = "move";
+        event.dataTransfer.setData("text/plain",card.dataset.noteId);
+        card.classList.add("dragging");
+      });
+      noteStream.addEventListener("dragend",function(event){
+        var card = event.target.closest(".note-card[data-note-id]");
+        if(card){card.classList.remove("dragging");}
+        tagList.querySelectorAll(".drop-target").forEach(function(button){button.classList.remove("drop-target");});
+      });
+      tagList.addEventListener("dragover",function(event){
+        var button = event.target.closest("[data-tag]");
+        if(!button){return;}
+        event.preventDefault();
+        if(event.dataTransfer){event.dataTransfer.dropEffect = "move";}
+        button.classList.add("drop-target");
+      });
+      tagList.addEventListener("dragleave",function(event){
+        var button = event.target.closest("[data-tag]");
+        if(button && !button.contains(event.relatedTarget)){button.classList.remove("drop-target");}
+      });
+      tagList.addEventListener("drop",function(event){
+        var button = event.target.closest("[data-tag]");
+        if(!button || !event.dataTransfer){return;}
+        event.preventDefault();
+        var noteId = event.dataTransfer.getData("text/plain");
+        button.classList.remove("drop-target");
+        moveNoteToTag(noteId,button.dataset.tag);
       });
       document.getElementById("tagForm").addEventListener("submit",function(event){
         event.preventDefault();
@@ -1573,4 +1609,3 @@
   </script>
 </body>
 </html>
-
