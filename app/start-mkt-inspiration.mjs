@@ -99,11 +99,21 @@ const normalizeAiResult = (value) => {
     try { candidate = JSON.parse(stripped); } catch { candidate = {}; }
   }
   if (candidate && typeof candidate.result === "object") candidate = candidate.result;
-  const pick = (...keys) => keys.map((key) => candidate?.[key]).find((item) => typeof item === "string" && item.trim()) || "";
-  return { insight: pick("insight", "创意洞察", "洞察"), content: pick("content", "创意内容", "内容"), form: pick("form", "创意形式", "形式") };
+  const pick = (...keys) => keys.map((key) => candidate?.[key]).map((item) => Array.isArray(item) ? item.filter(Boolean).join("、") : item).find((item) => typeof item === "string" && item.trim()) || "";
+  const analysis = pick("analysis", "解读", "新闻解读", "趋势解读");
+  return {
+    insight: pick("insight", "创意洞察", "洞察") || analysis,
+    content: pick("content", "创意内容", "内容") || analysis,
+    form: pick("form", "创意形式", "形式") || (analysis ? "原文解读" : ""),
+  };
 };
 
 async function api(pathname, input) {
+  if (pathname === "/api/fetch-page") {
+    const url = String(input.url || "").trim();
+    const html = await fetchPage(url);
+    return { ok: true, url, html };
+  }
   if (pathname === "/api/find-cover") {
     const url = String(input.url || "").trim();
     const html = await fetchPage(url);
@@ -131,14 +141,20 @@ async function api(pathname, input) {
   if (!apiKey) throw new Error("apiKey is required");
   if (!isTest && !supplied) throw new Error("content is required");
   let sourceText = "";
+  let sourceFetchError = "";
   if (!isTest && /^https?:\/\//i.test(sourceUrl)) {
-    const html = await fetchPage(sourceUrl);
-    const title = html.match(/<title[^>]*>([\s\S]*?)<\/title>/i)?.[1] || "";
-    const body = cleanText(html);
-    if (body.length < 120) throw new Error("source page正文不足，无法进行可靠解读");
-    sourceText = `原文标题：${cleanText(title)}\n原文正文：${body.slice(0, 30000)}`;
+    try {
+      const html = await fetchPage(sourceUrl);
+      const title = html.match(/<title[^>]*>([\s\S]*?)<\/title>/i)?.[1] || "";
+      const body = cleanText(html);
+      if (body.length >= 120) sourceText = `原文标题：${cleanText(title)}\n原文正文：${body.slice(0, 30000)}`;
+      else sourceFetchError = "原文正文不足";
+    } catch (error) {
+      sourceFetchError = error instanceof Error ? error.message : String(error);
+    }
   }
-  if (!isTest && /^https?:\/\//i.test(sourceUrl) && !sourceText) throw new Error("原文页面无法读取或正文不足，未生成猜测内容");
+  if (!isTest && /^https?:\/\//i.test(sourceUrl) && !sourceText && supplied.length < 120) throw new Error(`原文页面无法读取或正文不足，且卡片核验信息不足：${sourceFetchError || "请补充正文"}`);
+  if (!isTest && /^https?:\/\//i.test(sourceUrl) && !sourceText) sourceText = `原文页面暂不可读；以下为已核验卡片信息，请仅据此解读，不要补写未提供事实。`;
   const prompt = `${sourceText ? sourceText + "\n\n" : ""}卡片已核验信息：\n${supplied}\n\n请只依据以上原文和已核验信息输出 JSON，字段必须是 insight、content、form。insight 和 content 各写 2-3 句具体、连贯的话，控制在卡片显示不超过三行，讲清用户问题、核心策略、实际执行和品牌如何进入，不要堆砌背景。form 只返回 2-5 个与原文对应的具体执行关键词，用“、”分隔，例如“事件营销、户外广告”或“TVC、平面海报”，不要写解释长句，也禁止使用“品牌内容”“营销活动”等泛化词。禁止随机生成、把导航词或标签当正文；原文不足时明确写“原文未说明”。只返回 JSON，不要 Markdown。`;
   const upstream = await fetchWithTimeout(`${baseUrl}/chat/completions`, {
     method: "POST",
