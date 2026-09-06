@@ -59,7 +59,7 @@ const interleaveHotSources=items=>{
   // evidenceCover 是旧版文字证据图，不能作为最终封面。真实封面优先，
   // 远程图失败后由页面的 recoverCover 流程继续从详情页补图。
   const coverMarkup=item=>item.coverIntegrity==='remote-only'
-      ?`<div class="placeholder" style="height:100%">正在核验原文封面…</div>`
+      ?`<div class="placeholder" style="height:100%">正在抓取原文封面…</div>`
       :(item.localCoverPath||item.coverUrl||item.cover)
       ?`<img src="${escHtml(item.localCoverPath||item.coverUrl||item.cover)}" alt="案例原文封面：${escHtml(item.title)}" loading="lazy">`
       :`<div class="placeholder" style="height:100%">原文详情页未找到可核验封面</div>`;
@@ -72,23 +72,16 @@ const interleaveHotSources=items=>{
     let img=box.querySelector('img');
     if(!img){img=document.createElement('img');img.alt=`案例原文封面：${item.title||''}`;img.loading='lazy';box.appendChild(img)}
     box.classList.add('placeholder');
-    box.textContent='正在核验原文封面…';
+    box.textContent='正在抓取原文封面…';
     img.style.display='none';
     try{
-      const response=await fetch('/api/find-cover',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({url:sourceUrl})});
+      const response=await fetch('/api/fetch-cover',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({url:sourceUrl,sourceUrl})});
       const payload=await response.json();
-      const candidates=payload.ok&&Array.isArray(payload.candidates)?payload.candidates:[];
-      for(const candidate of candidates){
-        try{
-          const imageResponse=await fetch('/api/fetch-image',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({url:candidate})});
-          const imagePayload=await imageResponse.json();
-          if(imagePayload.ok&&imagePayload.dataUrl){
-            box.textContent='';box.classList.remove('placeholder');box.appendChild(img);img.style.display='block';img.src=imagePayload.dataUrl;img.dataset.recovered='1';return;
-          }
-        }catch(_){/* try the next verified candidate */}
-      }
-    }catch(_){/* show an explicit verified failure below */}
-    img.remove();box.textContent='原文详情页未找到可核验封面';
+      if(!response.ok||!payload.ok||!payload.dataUrl)throw new Error(payload.error||'原文封面抓取失败');
+      box.textContent='';box.classList.remove('placeholder');box.appendChild(img);img.style.display='block';img.src=payload.dataUrl;img.dataset.recovered='1';return;
+    }catch(_){/* never publish a pending or unrelated cover */}
+    const card=box.closest('.card');
+    if(card)card.remove();
   }
   const generalAnalysis=item=>item.reading?.analysis||[item.reading?.insight,item.reading?.content,item.reading?.form].filter(Boolean).join(' ');
   const LIBRARY_KEY='mkt-inspiration-library-v2';
